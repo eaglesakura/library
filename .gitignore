@@ -1,0 +1,6 @@
+*.xls#
+.DS_Store
+**/bin/
+**/gen/
+**/.idea/
+
