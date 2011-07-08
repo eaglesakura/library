@@ -2,8 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/EagleLibrary-API4"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
+	<classpathentry kind="lib" path="libs/google-api-client-1.2.3-alpha.jar"/>
+	<classpathentry kind="lib" path="libs/jsonic-1.0.5.jar"/>
 	<classpathentry kind="src" path="EagleLibrary-API4_src"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

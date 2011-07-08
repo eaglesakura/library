@@ -3,4 +3,6 @@
 **/bin/
 **/gen/
 **/.idea/
+*.jar
+.settings
 
