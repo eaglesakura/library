@@ -22,13 +22,14 @@ import javax.microedition.khronos.opengles.GL11;
 import javax.microedition.khronos.opengles.GL11Ext;
 import javax.microedition.khronos.opengles.GL11ExtensionPack;
 
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.view.SurfaceHolder;
+
 import com.eaglesakura.lib.android.math.Matrix4x4;
 import com.eaglesakura.lib.math.Vector3;
 import com.eaglesakura.lib.util.EagleUtil;
 
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
-import android.view.SurfaceHolder;
 import eagle.android.gles11.GL11Extension;
 
 /**
@@ -304,6 +305,38 @@ public class GLManager {
         clearColorRGBA(255, 0, 0, 255);
         clear();
         swapBuffers();
+    }
+
+    final float[] _lastColors = { 0, 0, 0, 0 };
+
+    /**
+     * 描画色を指定する。
+     * @param r
+     * @param g
+     * @param b
+     * @param a
+     */
+    public void setColor(float r, float g, float b, float a) {
+        gl10.glColor4f(r, g, b, a);
+        _lastColors[0] = r;
+        _lastColors[1] = g;
+        _lastColors[2] = b;
+        _lastColors[3] = a;
+    }
+
+    /**
+     * GLとの同期を行う。
+     */
+    public void syncGL() {
+        setColor(_lastColors[0], _lastColors[1], _lastColors[2], _lastColors[3]);
+    }
+
+    /**
+     * 最後にsetColor()したRGBAを取得する。
+     * @return
+     */
+    public float[] getLastColors() {
+        return _lastColors;
     }
 
     /**
