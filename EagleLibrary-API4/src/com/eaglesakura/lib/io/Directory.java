@@ -84,7 +84,7 @@ public class Directory {
     public void enumlateFiles(String root, String ext, boolean isSub) {
         rootPath = root;
         File file = new File(root);
-        if (file != null) {
+        if (file.isDirectory() && file.exists()) {
             File[] files = file.listFiles();
 
             if (files != null) {
