@@ -7,7 +7,43 @@
     android:name="android.test.InstrumentationTestRunner" />
   <application android:icon="@drawable/icon" android:label="@string/app_name"
     android:debuggable="true">
-
     <uses-library android:name="android.test.runner" />
+
+
+
+    <!-- Activity起動確認  -->
+    <activity android:name="com.eaglesakura.lib.test.activity.HelloActivity">
+      <intent-filter android:icon="@drawable/icon">
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+
+    <!-- スケーリングImageView  -->
+    <activity android:name="com.eaglesakura.lib.test.activity.ScaleImageViewActivity">
+      <intent-filter android:icon="@drawable/icon">
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+
+    <!-- handlerテスト  -->
+    <activity android:name="com.eaglesakura.lib.test.activity.HandlerTestActivity">
+      <intent-filter android:icon="@drawable/icon">
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+
+    <!-- GameLoopManagerテスト  -->
+    <activity android:name="com.eaglesakura.lib.test.activity.GameLoopManagerActivity">
+      <intent-filter android:icon="@drawable/icon">
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+
+
+
   </application>
 </manifest>

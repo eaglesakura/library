@@ -126,6 +126,18 @@ public class TouchImageView extends View {
     }
 
     @Override
+    protected void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
+        super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
+        setWindowFrame(windowFrame);
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        setWindowFrame(new Rect(left, top, right, bottom));
+    }
+
+    @Override
     public void draw(Canvas canvas) {
         if (image == null) {
             return;

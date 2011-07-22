@@ -18,7 +18,6 @@ import java.util.zip.ZipInputStream;
 
 import com.eaglesakura.lib.math.Vector2;
 
-
 /**
  * @author eagle.sakura
  * @version 2009/11/14 : 新規作成
@@ -475,7 +474,8 @@ public class EagleUtil {
     }
 
     /**
-     * ストリームをbyte配列に直す
+     * ストリームをbyte配列に直す。
+     * isはcloseされる。
      * @param is
      * @return
      * @throws IOException
@@ -540,6 +540,18 @@ public class EagleUtil {
         int resp = connection.getResponseCode();
         EagleUtil.log("Response : " + resp);
         return datas;
+    }
+
+    /**
+     * 指定したミリ秒、呼び出したスレッドを止める。
+     * @param ms
+     */
+    public static void sleep(long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (Exception e) {
+            log(e);
+        }
     }
 
     /**
