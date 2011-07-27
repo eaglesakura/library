@@ -42,5 +42,10 @@
 			<type>2</type>
 			<locationURI>_android_EagleLibrary_API7_61a51753/src</locationURI>
 		</link>
+		<link>
+			<name>EagleLibrary-WebService_src</name>
+			<type>2</type>
+			<locationURI>_android_EagleLibrary_WebService_70cce637/src</locationURI>
+		</link>
 	</linkedResources>
 </projectDescription>

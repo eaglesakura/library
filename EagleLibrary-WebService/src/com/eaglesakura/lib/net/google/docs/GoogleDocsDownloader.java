@@ -1,6 +1,5 @@
 package com.eaglesakura.lib.net.google.docs;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,11 +44,6 @@ public class GoogleDocsDownloader {
     byte[] buffer = new byte[1024 * 5];
 
     /**
-     * 書き込み対象ファイル
-     */
-    File dstFile = null;
-
-    /**
      * ダウンロード用ストリーム。
      */
     InputStream stream = null;
@@ -58,6 +52,9 @@ public class GoogleDocsDownloader {
     GoogleHeaders downHeader = (GoogleHeaders) downTrans.defaultHeaders;
     HttpRequest downRequest = null;
 
+    long rangeStart = -1;
+    long rangeLength = -1;
+
     public GoogleDocsDownloader(String token) {
         this.token = token;
     }
@@ -65,6 +62,26 @@ public class GoogleDocsDownloader {
     public GoogleDocsDownloader(String gmail, String password) {
         this.gmail = gmail;
         this.password = password;
+    }
+
+    /**
+     * ダウンロードする長さを設定する。
+     * @param start
+     * @param length
+     */
+    public void setContentStartAndLength(long start, long length) {
+        rangeStart = start;
+        rangeLength = length;
+    }
+
+    /**
+     * ダウンロードする長さを設定する。
+     * @param start
+     * @param length
+     */
+    public void setContentStartAndEnd(long start, long end) {
+        rangeStart = start;
+        rangeLength = end - start + 1;
     }
 
     void loginEmail(HttpTransport transport) throws IOException {
@@ -91,9 +108,15 @@ public class GoogleDocsDownloader {
         }
 
         downHeader.range = null;
+        /*
         if (dstFile.exists() && dstFile.length() > 0) {
             downHeader.range = "bytes=" + dstFile.length() + "-" + (itemSize - 1);
             EagleUtil.log("Range : " + downHeader.range);
+        }
+        */
+
+        if (rangeStart >= 0 && rangeLength > 0) {
+            downHeader.range = "bytes=" + rangeStart + "-" + (rangeStart + rangeLength - 1);
         }
 
         downRequest = downTrans.buildGetRequest();
@@ -129,9 +152,8 @@ public class GoogleDocsDownloader {
      * @param url
      * @throws IOException
      */
-    public void start(GoogleDocsEntries.Entry entry, File dstFile) throws IOException {
+    public void start(GoogleDocsEntries.Entry entry) throws IOException {
         EagleUtil.log(entry.getTitle() + " :: " + entry.getContentSize() + "bytes = " + entry.getContentUrl());
-        this.dstFile = dstFile;
         response = getResponse(entry.getContentUrl(), entry.getContentSize());
         EagleUtil.log("header : " + response.headers);
         stream = response.getContent();

@@ -2,6 +2,9 @@ package com.eaglesakura.lib.android.gles11;
 
 import android.graphics.Rect;
 
+import com.eaglesakura.lib.math.Vector2;
+import com.eaglesakura.lib.util.EagleUtil;
+
 /**
  * テクスチャ画像の一部をスプライトとして扱うクラス。
  */
@@ -9,6 +12,7 @@ public class TextureSprite {
     ITexture texture = null;
     Rect area = new Rect();
     int color = 0xffffffff;
+    Vector2 size = new Vector2();
 
     /**
      *
@@ -17,15 +21,40 @@ public class TextureSprite {
      */
     public TextureSprite(ITexture texture, Rect area) {
         this.texture = texture;
-        setArea(area);
+        setTextureArea(area);
+        setDrawSize(area.width(), area.height());
     }
 
     /**
      * 描画エリアを再指定する。
      * @param area
      */
-    public void setArea(Rect area) {
+    public void setTextureArea(Rect area) {
         this.area.set(area);
+    }
+
+    public int getTextureAreaWidth() {
+        return area.width();
+    }
+
+    public int getTextureAreaHeight() {
+        return area.height();
+    }
+
+    public void setDrawSize(int width, int height) {
+        size.set(width, height);
+    }
+
+    public ITexture getTexture() {
+        return texture;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
+    }
+
+    public void setColor(float r, float g, float b, float a) {
+        color = EagleUtil.toColorRGBA((int) (255.0f * r), (int) (255.0f * g), (int) (255.0f * b), (int) (255.0f * a));
     }
 
     /**
@@ -49,12 +78,12 @@ public class TextureSprite {
     public void draw(GLManager gl, int x, int y, float degree, int flags) {
         //! 中央？
         if ((flags & eDrawFlagCenterX) == eDrawFlagCenterX) {
-            x -= (area.width() / 2);
+            x -= (size.x / 2);
         }
         //! 中央？
         if ((flags & eDrawFlagCenterY) == eDrawFlagCenterY) {
-            y -= (area.height() / 2);
+            y -= (size.y / 2);
         }
-        gl.drawImage(x, y, area.width(), area.height(), degree, color, texture, area.left, area.top, area.width(), area.height());
+        gl.drawImage(x, y, (int) size.x, (int) size.y, degree, color, texture, area.left, area.top, area.width(), area.height());
     }
 }

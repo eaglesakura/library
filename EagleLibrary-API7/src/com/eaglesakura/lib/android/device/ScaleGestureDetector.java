@@ -166,8 +166,9 @@ public class ScaleGestureDetector {
 
     public boolean onTouchEvent(MotionEvent event) {
         int index = (event.getAction() & 0xff00) >> 8;
-        int id = event.getPointerId(index) == 0 ? 1 : 0;
         final int action = event.getAction();
+        int id = event.getPointerId(index) == 0 ? 1 : 0;
+        id = (((action & 0x0000ff00) >> 0x00000008) == 0) ? 1 : 0;
         boolean handled = true;
 
         if (!mGestureInProgress) {

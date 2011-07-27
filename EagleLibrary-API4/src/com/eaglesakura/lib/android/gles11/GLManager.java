@@ -985,6 +985,7 @@ public class GLManager {
             gl.glRotatef(rotateDeg, 0.0f, 0.0f, 1.0f);
         }
 
+        bindSpriteTexture(null);
         gl.glDisableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
         gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 0, 4);
     }

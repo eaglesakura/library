@@ -34,6 +34,8 @@ public class FileDownloader {
 
     GoogleDocsDownloader downloader = null;
 
+    boolean resume = false;
+
     public FileDownloader(String srcFileName, File dstFile) {
         this.srcFileName = srcFileName;
         this.dstFile = dstFile;
@@ -54,6 +56,10 @@ public class FileDownloader {
      */
     public void setCacheFileExt(String cacheFileExt) {
         this.cacheFileExt = cacheFileExt;
+    }
+
+    public void setResume(boolean resume) {
+        this.resume = resume;
     }
 
     String token = null;
@@ -108,7 +114,12 @@ public class FileDownloader {
 
         //! ダウンロードを開始する
         downloader = new GoogleDocsDownloader(email, password);
-        downloader.start(entry, cache);
+        if (resume) {
+            downloader.setContentStartAndEnd(cache.length(), entry.getContentSize());
+        } else {
+            cache.delete();
+        }
+        downloader.start(entry);
 
         return true;
     }
@@ -137,7 +148,12 @@ public class FileDownloader {
 
         //! ダウンロードを開始する
         downloader = new GoogleDocsDownloader(token);
-        downloader.start(entry, cache);
+        if (resume) {
+            downloader.setContentStartAndEnd(cache.length(), entry.getContentSize());
+        } else {
+            cache.delete();
+        }
+        downloader.start(entry);
 
         return true;
     }
@@ -152,7 +168,7 @@ public class FileDownloader {
         //! キャッシュファイルを探す
         boolean complete = false;
 
-        OutputStream stream = new FileOutputStream(cache, cache.exists() && cache.length() > 0);
+        OutputStream stream = new FileOutputStream(cache, (cache.exists() && cache.length() > 0) || resume);
         {
             complete = downloader.downloadBytes(length, stream);
         }
