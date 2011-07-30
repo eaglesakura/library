@@ -287,16 +287,20 @@ public class EagleUtil {
 
     /**
      * 角度Aから見た角度Bへの角度の差を返す。
-     * 時計回りは正、反時計回りは負の値を返す。
+     * 時計回りは負、反時計回りは正の値を返す。
      * @param a
      * @param b
      * @return
      */
     public static float getAngleDiff(float a, float b) {
-        float result = normalizeDegree(a) - normalizeDegree(b);
+        float result = normalizeDegree(b) - normalizeDegree(a);
         if (result > 180.0f) {
             result -= 360.0f;
         }
+        if (result < -180.0f) {
+            result += 360.0f;
+        }
+
         return result;
     }
 
@@ -338,6 +342,32 @@ public class EagleUtil {
         result -= 0.25f;
 
         return normalizeDegree(result * 360.0f);
+    }
+
+    /**
+     *
+     * @param center
+     * @param position
+     * @return
+     */
+    public static float getAngleDegree2D(Vector2 center, Vector2 position) {
+        return normalizeDegree(-getAngleDegree(center, position) - 180);
+    }
+
+    /**
+     * ジョグダイアルを回す場合の補助
+     * @param center ジョグダイアル中央
+     * @param current 現在のクリック位置
+     * @param scrollVector スクロール方向
+     * @return
+     */
+    public static float getJogRotate2D(Vector2 center, Vector2 current, Vector2 scrollVector) {
+        Vector2 before = new Vector2(current.x + scrollVector.x, current.y + scrollVector.y);
+
+        final float currentRotate = EagleUtil.getAngleDegree2D(center, current);
+        final float beforeRotate = EagleUtil.getAngleDegree2D(center, before);
+        final float rotateDiff = EagleUtil.getAngleDiff(currentRotate, beforeRotate);
+        return rotateDiff;
     }
 
     /**

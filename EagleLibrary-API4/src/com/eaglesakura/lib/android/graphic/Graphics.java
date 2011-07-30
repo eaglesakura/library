@@ -186,6 +186,19 @@ public class Graphics {
     }
 
     /**
+    *
+    * @author eagle.sakura
+    * @param x
+    * @param y
+    * @param r
+    * @version 2010/05/26 : 新規作成
+    */
+    public void fillCircle(int x, int y, float r) {
+        paint.setStyle(Style.FILL);
+        canvas.drawCircle((float) x, (float) y, r, paint);
+    }
+
+    /**
      * 四角形の塗りつぶしを行う。
      *
      * @author eagle.sakura

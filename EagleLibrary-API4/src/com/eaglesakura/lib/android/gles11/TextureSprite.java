@@ -45,6 +45,14 @@ public class TextureSprite {
         size.set(width, height);
     }
 
+    public int getDrawWidth() {
+        return (int) size.x;
+    }
+
+    public int getDrawHeight() {
+        return (int) size.y;
+    }
+
     public ITexture getTexture() {
         return texture;
     }
