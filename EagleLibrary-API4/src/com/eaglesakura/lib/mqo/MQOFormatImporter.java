@@ -11,7 +11,6 @@ import java.io.InputStreamReader;
 public class MQOFormatImporter {
     private BufferedReader reader = null;
     private MQOChunk rootChunk = null;
-    private MQOFigure object = null;
 
     /**
      *
@@ -20,23 +19,22 @@ public class MQOFormatImporter {
     public MQOFormatImporter(InputStream file) throws IOException {
         reader = new BufferedReader(new InputStreamReader(file));
         parse();
-        convert();
     }
 
     /**
-     * チャンク情報からGLで使いやすい形式へ変換する。
+     * 一番上のチャンクを取得する。
+     * @return
      */
-    private void convert() {
-        object = new MQOFigure(rootChunk);
-
+    public MQOChunk getRootChunk() {
+        return rootChunk;
     }
 
     /**
      * コンバート済みのオブジェクトを取得する。
      * @return
      */
-    public MQOFigure getConvertObject() {
-        return object;
+    public MQOFigure convertFigure() {
+        return new MQOFigure(rootChunk);
     }
 
     private MQOChunk readChunk(String header) throws IOException {

@@ -2,6 +2,7 @@ package com.eaglesakura.lib.android.mqo;
 
 import javax.microedition.khronos.opengles.GL10;
 
+import com.eaglesakura.lib.android.gles11.GLManager;
 import com.eaglesakura.lib.math.Vector3;
 
 public class Object3D {

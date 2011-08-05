@@ -7,6 +7,7 @@ import java.nio.ShortBuffer;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 
+import com.eaglesakura.lib.android.gles11.GLManager;
 import com.eaglesakura.lib.mqo.MQOIndexBuffer;
 
 /**

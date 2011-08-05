@@ -3,6 +3,8 @@
  */
 package com.eaglesakura.lib.android.mqo;
 
+import com.eaglesakura.lib.android.gles11.GLManager;
+
 /**
  * OpenGL資源管理の基底クラス。
  */

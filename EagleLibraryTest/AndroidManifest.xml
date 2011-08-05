@@ -62,6 +62,14 @@
       </intent-filter>
     </activity>
 
+    <!-- Dialテスト  -->
+    <activity android:name="com.eaglesakura.lib.test.activity.LineDrawing">
+      <intent-filter android:icon="@drawable/icon">
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+
 
 
   </application>

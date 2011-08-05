@@ -1,29 +1,21 @@
 package com.eaglesakura.lib.android.mqo;
 
-import java.io.IOException;
-
+import com.eaglesakura.lib.android.gles11.GLManager;
+import com.eaglesakura.lib.android.gles11.ITexture;
 import com.eaglesakura.lib.mqo.MQOMaterial;
 
 public class Material extends GLObject {
-    private Texture texture = null;
+    private ITexture texture = null;
 
     public Material(GLManager gl, MQOMaterial material) {
         setGLManager(gl);
-        try {
-            texture = gl.createTextureFromAsset(material.getTextureName());
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
     }
 
-    public Texture getTexture() {
+    public ITexture getTexture() {
         return texture;
     }
 
-    public void setTexture(Texture texture) {
+    public void setTexture(ITexture texture) {
         this.texture = texture;
     }
 

@@ -10,7 +10,6 @@ import javax.microedition.khronos.opengles.GL11;
 
 import com.eaglesakura.lib.util.Disposable;
 
-
 /**
  * テクスチャを示す基底クラス。
  *

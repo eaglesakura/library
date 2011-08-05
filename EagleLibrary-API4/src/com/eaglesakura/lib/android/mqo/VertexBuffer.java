@@ -10,6 +10,7 @@ import java.nio.FloatBuffer;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 
+import com.eaglesakura.lib.android.gles11.GLManager;
 import com.eaglesakura.lib.mqo.MQOVertex;
 import com.eaglesakura.lib.mqo.MQOVertexBuffer;
 
@@ -19,7 +20,15 @@ import com.eaglesakura.lib.mqo.MQOVertexBuffer;
  */
 public class VertexBuffer extends GLObject {
     private int vertices = 0;
-    private static int eVertexSize = (4 * 3 + 4 * 2 + 4 * 4);
+
+    /**
+     * 1頂点のサイズ
+     */
+    public static int eVertexSize = (4 * 3 + 4 * 2 + 4 * 4);
+
+    public static int eVertexOnceLength = eVertexSize / 4;
+
+    float[] originBuffer = null;
 
     private boolean colorEnable = true;
 
@@ -34,42 +43,42 @@ public class VertexBuffer extends GLObject {
         GL11 gl = getGLManager().getGL();
         FloatBuffer fb = ByteBuffer.allocateDirect(eVertexSize * origin.getVertexCount()).order(ByteOrder.nativeOrder()).asFloatBuffer();
 
-        float[] arr = new float[(3 + 2 + 4) * origin.getVertexCount()];
+        originBuffer = new float[(3 + 2 + 4) * origin.getVertexCount()];
         int current = 0;
         for (int i = 0; i < origin.getVertexCount(); ++i) {
             MQOVertex v = origin.getVertex(i);
             //! 位置
             {
-                arr[current] = v.position.x;
+                originBuffer[current] = v.position.x;
                 ++current;
-                arr[current] = v.position.y;
+                originBuffer[current] = v.position.y;
                 ++current;
-                arr[current] = v.position.z;
+                originBuffer[current] = v.position.z;
                 ++current;
             }
 
             //! UV
             {
-                arr[current] = v.uv.x;
+                originBuffer[current] = v.uv.x;
                 ++current;
-                arr[current] = v.uv.y;
+                originBuffer[current] = v.uv.y;
                 ++current;
             }
             //! 色
             /*
             */
             {
-                arr[current] = v.color.r;
+                originBuffer[current] = v.color.r;
                 ++current;
-                arr[current] = v.color.g;
+                originBuffer[current] = v.color.g;
                 ++current;
-                arr[current] = v.color.b;
+                originBuffer[current] = v.color.b;
                 ++current;
-                arr[current] = v.color.a;
+                originBuffer[current] = v.color.a;
                 ++current;
             }
         }
-        fb.put(arr);
+        fb.put(originBuffer);
         fb.position(0);
 
         //! bind -> update -> unbind
@@ -77,6 +86,33 @@ public class VertexBuffer extends GLObject {
             gl.glDisable(GL10.GL_CULL_FACE);
             gl.glBindBuffer(GL11.GL_ARRAY_BUFFER, vertices);
             gl.glBufferData(GL11.GL_ARRAY_BUFFER, fb.capacity() * 4, fb, GL11.GL_STATIC_DRAW);
+            gl.glBindBuffer(GL11.GL_ARRAY_BUFFER, 0);
+        }
+
+        //        rebind(gl, GL11.GL_DYNAMIC_DRAW);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public float[] getOriginBuffer() {
+        return originBuffer;
+    }
+
+    /**
+     * オリジナルのバッファを再度転送する。
+     * @param gl
+     */
+    public void rebind(GL11 gl, int bufferType) {
+        FloatBuffer fb = ByteBuffer.allocateDirect(originBuffer.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+
+        fb.put(originBuffer);
+        fb.position(0);
+
+        {
+            gl.glBindBuffer(GL11.GL_ARRAY_BUFFER, vertices);
+            gl.glBufferData(GL11.GL_ARRAY_BUFFER, fb.capacity() * 4, fb, bufferType);
             gl.glBindBuffer(GL11.GL_ARRAY_BUFFER, 0);
         }
     }

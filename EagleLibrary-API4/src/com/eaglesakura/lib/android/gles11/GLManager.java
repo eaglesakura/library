@@ -6,6 +6,8 @@
  */
 package com.eaglesakura.lib.android.gles11;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -22,7 +24,9 @@ import javax.microedition.khronos.opengles.GL11;
 import javax.microedition.khronos.opengles.GL11Ext;
 import javax.microedition.khronos.opengles.GL11ExtensionPack;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.Config;
 import android.view.SurfaceHolder;
 
@@ -1129,4 +1133,71 @@ public class GLManager {
 
         return result;
     }
+
+    /**
+     * ピクセル座標から正規化座標を取得する。<BR>
+     * ただし、Zはそのまま出力される。
+     * @param pixel
+     * @param result
+     * @return
+     */
+    public Vector3 getScreenPosition(Vector3 pixel, Vector3 result) {
+        result.set(pixel.x / (getDisplayWidth() / 2) - 1.0f, pixel.y / (getDisplayHeight() / 2) - 1.0f, pixel.z);
+        result.y = -result.y;
+
+        return result;
+    }
+
+    /**
+     * アセットからテクスチャを生成する。
+     * @param assetFileName
+     * @return
+     * @throws IOException
+     */
+    public ITexture createTextureFromAsset(Context context, String assetFileName) throws IOException {
+        InputStream is = context.getAssets().open(assetFileName);
+        Bitmap bmp = BitmapFactory.decodeStream(is);
+        ITexture result = new BmpTexture(bmp, this);
+        bmp.recycle();
+        is.close();
+
+        return result;
+    }
+
+    /**
+     * VBOのバッファをひとつ作成する。
+     * @return
+     */
+    public int genVBO() {
+        int[] buf = new int[1];
+        gl11.glGenBuffers(1, buf, 0);
+        return buf[0];
+    }
+
+    /**
+     * VBOのバッファをひとつ削除する。
+     * @param vbo
+     */
+    public void delVBO(int vbo) {
+        gl11.glDeleteBuffers(1, new int[] { vbo }, 0);
+    }
+
+    /**
+     * テクスチャバッファをひとつ作成する。
+     * @return
+     */
+    public int genTex() {
+        int[] buf = new int[1];
+        gl11.glGenTextures(1, buf, 0);
+        return buf[0];
+    }
+
+    /**
+     * テクスチャバッファを削除する。
+     * @param tex
+     */
+    public void delTex(int tex) {
+        gl11.glDeleteTextures(0, new int[] { tex }, 0);
+    }
+
 }

@@ -6,6 +6,7 @@ package com.eaglesakura.lib.android.mqo;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.eaglesakura.lib.android.gles11.GLManager;
 import com.eaglesakura.lib.mqo.MQOFigure;
 
 /**

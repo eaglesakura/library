@@ -3,6 +3,7 @@ package com.eaglesakura.lib.android.mqo;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 
+import com.eaglesakura.lib.android.gles11.GLManager;
 import com.eaglesakura.lib.mqo.MQOMesh;
 
 /**
@@ -29,6 +30,8 @@ public class Mesh {
      */
     private String name = "";
 
+    boolean visible = true;
+
     /**
      *
      */
@@ -51,7 +54,19 @@ public class Mesh {
         return indexBuffer;
     }
 
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
     public void draw() {
+        if (!visible) {
+            return;
+        }
+
         GL11 gl = getVertexBuffer().getGLManager().getGL();
         //! 名前からコマンドを取り出す
         {
@@ -72,6 +87,7 @@ public class Mesh {
             }
         }
 
+        /**/
         material.bind();
         vertexBuffer.bind();
         {
@@ -82,6 +98,10 @@ public class Mesh {
     }
 
     public void drawEdge() {
+        if (!visible) {
+            return;
+        }
+
         GL11 gl = getVertexBuffer().getGLManager().getGL();
         //! 名前からコマンドを取り出す
         {
