@@ -7,6 +7,8 @@ package com.eaglesakura.lib.io;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -216,6 +218,33 @@ public class Directory {
      */
     public static File getCurrentDirectory() {
         return (new File(".").getAbsoluteFile().getParentFile());
+    }
+
+    /**
+     * ファイルを名前順にソートする。
+     * @param files
+     * @return
+     */
+    public static File[] sort(File[] files) {
+        List<File> temp = new ArrayList<File>();
+        for (File f : files) {
+            temp.add(f);
+        }
+
+        Collections.sort(temp, new Comparator<File>() {
+            @Override
+            public int compare(File object1, File object2) {
+                String f0 = object1.getAbsolutePath();
+                String f1 = object2.getAbsolutePath();
+                return f0.compareTo(f1);
+            }
+        });
+
+        for (int i = 0; i < files.length; ++i) {
+            files[i] = temp.get(i);
+        }
+
+        return files;
     }
 
     /**

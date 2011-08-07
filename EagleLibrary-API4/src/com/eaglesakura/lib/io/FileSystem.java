@@ -7,6 +7,7 @@ package com.eaglesakura.lib.io;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -20,7 +21,6 @@ import java.io.UnsupportedEncodingException;
 import com.eaglesakura.lib.util.Disposable;
 import com.eaglesakura.lib.util.EagleException;
 import com.eaglesakura.lib.util.EagleUtil;
-
 
 /**
  * ファイルIO用のストリームを作成する。<BR>
@@ -123,6 +123,10 @@ public class FileSystem implements Disposable {
      */
     public InputStream createInputStream(String filePath) throws IOException, EagleException {
         return new FileInputStream(directory + filePath);
+    }
+
+    public File getFile(String filePath) {
+        return new File(directory + filePath);
     }
 
     /**

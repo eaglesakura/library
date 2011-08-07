@@ -8,9 +8,11 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.GestureDetector.OnDoubleTapListener;
 
 import com.eaglesakura.lib.android.graphic.Graphics;
 import com.eaglesakura.lib.math.Vector2;
@@ -25,10 +27,11 @@ public class TouchImageView extends View {
     float nowScaling = 1.0f;
     OnLongClickListener onLongClickListener = null;
     OnClickListener onClickListener = null;
+    Handler handler = null;
 
     public TouchImageView(Context context) {
         super(context);
-
+        handler = new Handler();
         scaleGesture = new ScaleGestureDetector(context, new ScaleGestureDetector.OnScaleGestureListener() {
 
             @Override
@@ -91,7 +94,59 @@ public class TouchImageView extends View {
                 return false;
             }
         });
+
+        gesture.setOnDoubleTapListener(new OnDoubleTapListener() {
+
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                return false;
+            }
+
+            @Override
+            public boolean onDoubleTapEvent(MotionEvent e) {
+                return false;
+            }
+
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                handler.removeCallbacks(zoomInRunner);
+                handler.removeCallbacks(zoomOutRunner);
+                if (nowScaling < 1.1f) {
+                    handler.post(zoomInRunner);
+                    return true;
+                } else {
+                    handler.post(zoomOutRunner);
+                    return true;
+                }
+            }
+        });
     }
+
+    final int eAnimationDelay = 1000 / 60;
+    final float eAnimationSpeed = 1.1f;
+
+    Runnable zoomInRunner = new Runnable() {
+
+        @Override
+        public void run() {
+            if (nowScaling < 2) {
+                pinch(new Vector2(getWidth() / 2, getHeight() / 2), eAnimationSpeed);
+                invalidate();
+                handler.postDelayed(this, eAnimationDelay);
+            }
+        }
+    };
+    Runnable zoomOutRunner = new Runnable() {
+
+        @Override
+        public void run() {
+            if (nowScaling > 1.0f) {
+                pinch(new Vector2(getWidth() / 2, getHeight() / 2), 1.0f / eAnimationSpeed);
+                invalidate();
+                handler.postDelayed(this, eAnimationDelay);
+            }
+        }
+    };
 
     @Override
     public void setOnClickListener(OnClickListener l) {

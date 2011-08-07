@@ -14,7 +14,6 @@ public class ScaleImageViewActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         TouchImageView tiv = new TouchImageView(this);
         tiv.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.icon));
         setContentView(tiv);

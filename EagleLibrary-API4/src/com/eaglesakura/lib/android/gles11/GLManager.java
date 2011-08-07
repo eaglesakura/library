@@ -395,10 +395,23 @@ public class GLManager {
 
     public void onResume() {
         try {
-            egl.eglDestroySurface(glDisplay, glSurface);
-            egl.eglMakeCurrent(glDisplay, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, glContext);
+            if (glSurface != null) {
+                egl.eglDestroySurface(glDisplay, glSurface);
+                egl.eglMakeCurrent(glDisplay, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, glContext);
+            }
             glSurface = egl.eglCreateWindowSurface(glDisplay, glConfig, holder, null);
             egl.eglMakeCurrent(glDisplay, glSurface, glSurface, glContext);
+        } catch (Exception e) {
+            EagleUtil.log(e);
+        }
+    }
+
+    public void onPause() {
+        try {
+            if (glSurface != null) {
+                egl.eglDestroySurface(glDisplay, glSurface);
+                egl.eglMakeCurrent(glDisplay, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, glContext);
+            }
         } catch (Exception e) {
             EagleUtil.log(e);
         }
@@ -790,25 +803,30 @@ public class GLManager {
      * @version 2009/11/14 : 新規作成
      */
     public void dispose() {
-        // サーフェイス破棄
-        if (glSurface != null) {
-            // レンダリングコンテキストとの結びつけは解除
-            egl.eglMakeCurrent(glDisplay, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT);
 
-            egl.eglDestroySurface(glDisplay, glSurface);
-            glSurface = null;
-        }
+        try {
+            // サーフェイス破棄
+            if (glSurface != null) {
+                // レンダリングコンテキストとの結びつけは解除
+                egl.eglMakeCurrent(glDisplay, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT);
 
-        // レンダリングコンテキスト破棄
-        if (glContext != null) {
-            egl.eglDestroyContext(glDisplay, glContext);
-            glContext = null;
-        }
+                egl.eglDestroySurface(glDisplay, glSurface);
+                glSurface = null;
+            }
 
-        // ディスプレイコネクション破棄
-        if (glDisplay != null) {
-            egl.eglTerminate(glDisplay);
-            glDisplay = null;
+            // レンダリングコンテキスト破棄
+            if (glContext != null) {
+                egl.eglDestroyContext(glDisplay, glContext);
+                glContext = null;
+            }
+
+            // ディスプレイコネクション破棄
+            if (glDisplay != null) {
+                egl.eglTerminate(glDisplay);
+                glDisplay = null;
+            }
+        } catch (Exception e) {
+            EagleUtil.log(e);
         }
     }
 
@@ -1021,7 +1039,7 @@ public class GLManager {
         // ! UV操作
         {
             gl.glMatrixMode(GL10.GL_TEXTURE);
-            float sizeX = (float) tw / (float) tex.getWidth(), sizeY = (float) th / (float) tex.getHeight(), sx = (float) tx / (float) tex.getWidth(), sy = (float) tx
+            float sizeX = (float) tw / (float) tex.getWidth(), sizeY = (float) th / (float) tex.getHeight(), sx = (float) tx / (float) tex.getWidth(), sy = (float) ty
                     / (float) tex.getHeight();
 
             gl.glLoadIdentity();

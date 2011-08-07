@@ -5,14 +5,14 @@
  */
 package com.eaglesakura.lib.android.view;
 
+import android.content.Context;
+import android.util.AttributeSet;
+import android.view.SurfaceHolder;
+
 import com.eaglesakura.lib.android.gles11.GLManager;
 import com.eaglesakura.lib.android.util.UtilActivity;
 import com.eaglesakura.lib.math.Vector2;
 import com.eaglesakura.lib.util.EagleUtil;
-
-import android.content.Context;
-import android.util.AttributeSet;
-import android.view.SurfaceHolder;
 
 /**
  * @author eagle.sakura
@@ -51,7 +51,7 @@ public class OpenGLView extends LooperSurfaceView {
     public OpenGLView(Context context) {
         super(context);
         // getHolder().setFormat( PixelFormat.RGB_888 );
-        // getHolder().setFormat( PixelFormat.RGBA_8888 );
+        //        getHolder().setFormat(PixelFormat.RGB_565);
         // getHolder().setFormat( PixelFormat.TRANSPARENT );
 
         getHolder().setType(SurfaceHolder.SURFACE_TYPE_GPU);
@@ -97,6 +97,12 @@ public class OpenGLView extends LooperSurfaceView {
         return glManager;
     }
 
+    int pixelFormat = 0;
+
+    public int getPixelFormat() {
+        return pixelFormat;
+    }
+
     /**
      *
      * @author eagle.sakura
@@ -108,6 +114,7 @@ public class OpenGLView extends LooperSurfaceView {
      */
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        this.pixelFormat = format;
         if (glManager == null) {
             glManager = GLManager.getInstance();
         }
@@ -136,6 +143,7 @@ public class OpenGLView extends LooperSurfaceView {
     public void surfaceDestroyed(SurfaceHolder holder) {
         super.surfaceDestroyed(holder);
 
+        glManager.onPause();
         destroyed = true;
         /*
          * if( glManager != null ) { glManager.dispose(); }

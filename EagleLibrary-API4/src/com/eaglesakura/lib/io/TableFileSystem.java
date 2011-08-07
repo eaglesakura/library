@@ -54,7 +54,7 @@ public class TableFileSystem extends FileSystem {
      * @return
      * @version 2010/07/30 : 新規作成
      */
-    public byte[] getFile(String key) {
+    public byte[] getFileBuffer(String key) {
         return fileTable.get(key);
     }
 

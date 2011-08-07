@@ -60,7 +60,7 @@ public abstract class ITexture implements Disposable {
     /**
      * 関連付けられたマネージャ。
      */
-    private GLManager glManager = null;
+    protected GLManager glManager = null;
 
     /**
      *
@@ -69,10 +69,13 @@ public abstract class ITexture implements Disposable {
      * @version 2010/05/30 : 新規作成
      */
     public ITexture(GLManager gl) {
-        glManager = gl;
-        int[] n = { -1 };
-        gl.getGL().glGenTextures(1, n, 0);
-        textureId = n[0];
+
+        if (gl != null) {
+            glManager = gl;
+            int[] n = { -1 };
+            gl.getGL().glGenTextures(1, n, 0);
+            textureId = n[0];
+        }
     }
 
     /**
@@ -160,6 +163,13 @@ public abstract class ITexture implements Disposable {
     }
 
     /**
+     * 必要であれば更新を行う。
+     */
+    public void update() {
+
+    }
+
+    /**
      * @author eagle.sakura
      * @version 2010/05/30 : 新規作成
      */
@@ -174,6 +184,10 @@ public abstract class ITexture implements Disposable {
     }
 
     public void setScalingFilter(boolean linear) {
+        if (textureId == -1) {
+            return;
+        }
+
         GL10 gl = getGLManager().getGL10();
         int type = linear ? GL10.GL_LINEAR : GL10.GL_NEAREST;
         // ! テクスチャ属性指定。

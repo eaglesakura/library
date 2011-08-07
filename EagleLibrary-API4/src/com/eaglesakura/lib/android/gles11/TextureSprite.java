@@ -57,6 +57,10 @@ public class TextureSprite {
         return texture;
     }
 
+    public void setTexture(ITexture texture) {
+        this.texture = texture;
+    }
+
     public void setColor(int color) {
         this.color = color;
     }
