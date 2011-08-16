@@ -13,9 +13,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Calendar;
 
-import com.eaglesakura.lib.math.Vector2;
-import com.eaglesakura.lib.util.EagleUtil;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
@@ -27,6 +24,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.view.WindowManager;
+
+import com.eaglesakura.lib.math.Vector2;
+import com.eaglesakura.lib.util.EagleUtil;
 
 /**
  * @author eagle.sakura
@@ -58,6 +58,7 @@ public class UtilActivity extends Activity {
      * @return
      * @version 2010/06/06 : 新規作成
      */
+    @Deprecated
     public static FileOutputStream openSDOutputStream(String path) throws IOException {
         if (path.charAt(0) != '/' && path.charAt(0) != '\\') {
             path = "/" + path;
@@ -75,6 +76,7 @@ public class UtilActivity extends Activity {
      * @return
      * @version 2010/07/17 : 新規作成
      */
+    @Deprecated
     public static String toSDPath(String path) {
         if (path.charAt(0) != '/' && path.charAt(0) != '\\') {
             path = "/" + path;
@@ -91,6 +93,7 @@ public class UtilActivity extends Activity {
      * @throws IOException
      * @version 2010/06/06 : 新規作成
      */
+    @Deprecated
     public static FileInputStream openSDInputStream(String path) throws IOException {
         if (path.charAt(0) != '/' && path.charAt(0) != '\\') {
             path = "/" + path;
@@ -105,6 +108,7 @@ public class UtilActivity extends Activity {
      *
      * @param path
      */
+    @Deprecated
     public static void setSDCardRootPath(String path) {
         sdcardPath = path;
     }
@@ -116,6 +120,7 @@ public class UtilActivity extends Activity {
      * @return
      * @version 2010/06/06 : 新規作成
      */
+    @Deprecated
     public static String getSDCardRootPath() {
         return sdcardPath;
     }
@@ -128,6 +133,7 @@ public class UtilActivity extends Activity {
      * @return
      * @version 2010/06/12 : 新規作成
      */
+    @Deprecated
     public static String convertSDPath(String path) {
         if (path.charAt(0) != '/' && path.charAt(0) != '\\') {
             path = "/" + path;
@@ -237,6 +243,7 @@ public class UtilActivity extends Activity {
      * @return
      * @version 2010/06/06 : 新規作成
      */
+    @Deprecated
     public static boolean createSDDirectory(String path) {
         File file = new File(getSDCardRootPath() + path);
         if (file.isDirectory()) {

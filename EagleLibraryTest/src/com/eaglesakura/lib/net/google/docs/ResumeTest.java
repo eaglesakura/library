@@ -16,18 +16,25 @@ public class ResumeTest extends AndroidTestCase {
     static String pass = "";
 
     @MediumTest
+    public void docsSearchTest() throws IOException {
+        GoogleDocsEntries entries = new GoogleDocsEntries(mail, pass);
+        entries.accessURL("?start-index=50&max-results=10");
+
+        EagleUtil.log("Entry : " + entries.getEntriesCount());
+        for (int i = 0; i < entries.getEntriesCount(); ++i) {
+            EagleUtil.log("Title : " + entries.getEntry(i).getTitle());
+        }
+    }
+
+    @MediumTest
     public void docsDownloadTest() throws IOException {
         String keyword = "jdh";
-
         GoogleDocsEntries entries = new GoogleDocsEntries(mail, pass);
-
         entries.access(keyword, true);
 
         GoogleDocsEntries.Entry entry = entries.getEntry(0);
         EagleUtil.log("name : " + entry.getTitle());
-
         GoogleDocsDownloader downloader = new GoogleDocsDownloader(mail, pass);
-
         File file = new File(Environment.getExternalStorageDirectory(), entry.getTitle());
         file.delete();
         downloader.start(entry);

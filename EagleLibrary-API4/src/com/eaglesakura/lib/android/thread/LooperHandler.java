@@ -8,13 +8,13 @@ package com.eaglesakura.lib.android.thread;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.eaglesakura.lib.android.view.ILooperSurface;
-import com.eaglesakura.lib.android.view.LooperSurfaceView;
-import com.eaglesakura.lib.util.EagleUtil;
-
 import android.os.Handler;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
+
+import com.eaglesakura.lib.android.view.ILooperSurface;
+import com.eaglesakura.lib.android.view.LooperSurfaceView;
+import com.eaglesakura.lib.util.EagleUtil;
 
 /**
  * @author eagle.sakura

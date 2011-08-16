@@ -79,6 +79,54 @@ public class GoogleDocsEntries {
      * @param keyword 検索ワード。nullですべて取得。
      * @throws IOException
      */
+    public void accessURL(String _url) throws IOException {
+        HttpTransport transport = GoogleTransport.create();
+        GoogleHeaders headers = (GoogleHeaders) transport.defaultHeaders;
+        headers.setApplicationName(applicationName);
+        headers.gdataVersion = "3";
+
+        if (token != null) {
+            headers.setGoogleLogin(token);
+        } else {
+            loginEmail(transport);
+        }
+
+        //! parser
+        AtomParser parser = new AtomParser();
+        parser.namespaceDictionary = new XmlNamespaceDictionary();
+        transport.addParser(parser);
+
+        {
+            HttpRequest request = transport.buildGetRequest();
+            String url = "https://docs.google.com/feeds/default/private/full" + _url;
+            EagleUtil.log("search url : " + url);
+            request.url = new GoogleUrl(url);
+            HttpResponse responce = request.execute();
+
+            {
+                // 送信
+                Feed feed = responce.parseAs(Feed.class);
+
+                try {
+                    responce.getContent().close();
+                } catch (Exception e) {
+                    EagleUtil.log(e);
+                }
+                //                            final String key = "@src";
+                if (feed.entries != null) {
+                    for (EntryItem entry : feed.entries) {
+                        entries.add(new Entry(entry));
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * docsにアクセスし、アイテム一覧を取得する。
+     * @param keyword 検索ワード。nullですべて取得。
+     * @throws IOException
+     */
     public void access(String keyword, boolean isQuery) throws IOException {
         HttpTransport transport = GoogleTransport.create();
         GoogleHeaders headers = (GoogleHeaders) transport.defaultHeaders;

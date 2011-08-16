@@ -123,6 +123,7 @@ public class OpenGLView extends LooperSurfaceView {
 
         Vector2 v = UtilActivity.getDisplaySize(context, new Vector2());
         EagleUtil.log("DisplaySize : " + v);
+        glManager.setSurfaceHolder(holder);
         glManager.setSurfaceSize((int) v.x, (int) v.y);
         if (destroyed) {
             glManager.onResume();

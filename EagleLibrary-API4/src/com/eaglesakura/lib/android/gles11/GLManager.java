@@ -407,14 +407,17 @@ public class GLManager {
     }
 
     public void onPause() {
+        /*
         try {
             if (glSurface != null) {
                 egl.eglDestroySurface(glDisplay, glSurface);
                 egl.eglMakeCurrent(glDisplay, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, glContext);
+                glSurface = null;
             }
         } catch (Exception e) {
             EagleUtil.log(e);
         }
+        */
     }
 
     /**
