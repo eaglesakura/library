@@ -10,7 +10,6 @@ import com.eaglesakura.lib.test.R;
  * マルチタッチ操作可能なImageView
  */
 public class ScaleImageViewActivity extends BaseActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -24,4 +24,10 @@ public class BaseActivity extends Activity {
     BaseActivity getActivity() {
         return this;
     }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        EagleUtil.log("onWindowFocusChanged : " + hasFocus);
+    }
 }

@@ -13,6 +13,8 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -27,6 +29,7 @@ import javax.microedition.khronos.opengles.GL11ExtensionPack;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PixelFormat;
 import android.graphics.Bitmap.Config;
 import android.view.SurfaceHolder;
 
@@ -95,12 +98,6 @@ public class GLManager {
      */
     private static boolean isGL11ExtentionInitialize = true;
 
-    private static GLManager instance;
-
-    public static GLManager getInstance() {
-        return instance;
-    }
-
     /**
      * GL描画用スレッドを作成する。
      *
@@ -109,7 +106,6 @@ public class GLManager {
      * @version 2009/11/14 : 新規作成
      */
     public GLManager() {
-        instance = this;
     }
 
     /**
@@ -134,7 +130,6 @@ public class GLManager {
      * @version 2009/11/19 : 新規作成
      */
     public GLManager(SurfaceHolder holder, GL10 gl, EGLConfig config) {
-        instance = this;
         this.holder = holder;
         gl10 = gl;
         gl11 = (GL11) gl;
@@ -408,6 +403,7 @@ public class GLManager {
 
     public void onPause() {
         /*
+        */
         try {
             if (glSurface != null) {
                 egl.eglDestroySurface(glDisplay, glSurface);
@@ -417,7 +413,6 @@ public class GLManager {
         } catch (Exception e) {
             EagleUtil.log(e);
         }
-        */
     }
 
     /**
@@ -500,8 +495,54 @@ public class GLManager {
      * @param specs
      * @version 2010/07/27 : 新規作成
      */
-    public void setConfigSpec(int[] specs) {
+    private void setConfigSpec(int[] specs) {
         configSpec = specs;
+    }
+
+    /**
+     * 自動でコンフィグを設定する。
+     * @param pixelFormat
+     * @param depth
+     */
+    public void autoConfigSpec(int pixelFormat, boolean depth) {
+        List<Integer> specs = new ArrayList<Integer>();
+
+        if (pixelFormat == PixelFormat.RGB_565) {
+            specs.add(EGL10.EGL_RED_SIZE);
+            specs.add(5);
+            specs.add(EGL10.EGL_GREEN_SIZE);
+            specs.add(6);
+            specs.add(EGL10.EGL_BLUE_SIZE);
+            specs.add(5);
+        } else if (pixelFormat == PixelFormat.RGB_888) {
+            specs.add(EGL10.EGL_RED_SIZE);
+            specs.add(8);
+            specs.add(EGL10.EGL_GREEN_SIZE);
+            specs.add(8);
+            specs.add(EGL10.EGL_BLUE_SIZE);
+            specs.add(8);
+        } else if (pixelFormat == PixelFormat.RGBA_8888) {
+            specs.add(EGL10.EGL_RED_SIZE);
+            specs.add(8);
+            specs.add(EGL10.EGL_GREEN_SIZE);
+            specs.add(8);
+            specs.add(EGL10.EGL_BLUE_SIZE);
+            specs.add(8);
+            specs.add(EGL10.EGL_ALPHA_SIZE);
+            specs.add(8);
+        }
+
+        if (depth) {
+            specs.add(EGL10.EGL_DEPTH_SIZE);
+            specs.add(16);
+        }
+
+        specs.add(EGL10.EGL_NONE);
+
+        configSpec = new int[specs.size()];
+        for (int i = 0; i < configSpec.length; ++i) {
+            configSpec[i] = specs.get(i);
+        }
     }
 
     /**
@@ -639,6 +680,19 @@ public class GLManager {
         EagleUtil.log("set default out");
     }
 
+    int deviceWidth = 0;
+    int deviceHeight = 0;
+
+    /**
+     * デバイスの実際の解像度を指定する。
+     * @param w
+     * @param h
+     */
+    public void setDeviceSize(int w, int h) {
+        deviceWidth = w;
+        deviceHeight = h;
+    }
+
     private void _setDefGLStatus() {
         GL11 gl = getGL();
         // ! 深度テスト有効
@@ -674,7 +728,18 @@ public class GLManager {
 
         // !
         gl.glDisable(GL10.GL_LIGHTING);
-        gl.glViewport(0, 0, getDisplayWidth(), getDisplayHeight());
+
+        {
+            int viewWidth = getDisplayWidth();
+            int viewHeight = getDisplayHeight();
+
+            //            int left = (deviceWidth - viewWidth) / 2;
+            //            int top = (deviceHeight - viewHeight) / 2;
+
+            gl.glViewport(0, 0, viewWidth, viewHeight);
+            //            gl.glViewport(0, 0, viewWidth, viewHeight);
+        }
+        //        gl.glViewport(0, 0, getDisplayWidth(), getDisplayHeight());
         // gl.glViewport( 0, 0, 320, 480 );
         // gl.glHint( GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_NICEST );
         // gl.glHint( GL10.GL_POLYGON_SMOOTH_HINT, GL10.GL_NICEST );

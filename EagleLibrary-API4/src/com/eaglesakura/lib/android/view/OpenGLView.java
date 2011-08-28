@@ -63,27 +63,31 @@ public class OpenGLView extends LooperSurfaceView {
      * サーフェイスが作成された。
      *
      * @author eagle.sakura
-     * @param arg0
+     * @param holder
      * @version 2010/05/30 : 新規作成
      */
     @Override
-    public void surfaceCreated(SurfaceHolder arg0) {
+    public void surfaceCreated(SurfaceHolder holder) {
         if (glManager == null) {
-            glManager = GLManager.getInstance();
+            glManager = new GLManager();
         }
 
         EagleUtil.log("OpenGLView#surfaceCreated");
-        EagleUtil.log("arg0 : " + arg0);
+        EagleUtil.log("arg0 : " + holder);
         EagleUtil.log("cur holder : " + glManager.getSurfaceHolder());
         // glManager.setSurfaceHolder( arg0 );
         // glManager.initGL();
         // glManager.clearTest( );
 
         Vector2 v = UtilActivity.getDisplaySize(context, new Vector2());
+        glManager.setDeviceSize((int) v.x, (int) v.y);
+        if (holder.getSurfaceFrame().width() != 0 && holder.getSurfaceFrame().height() != 0) {
+            v.set(holder.getSurfaceFrame().width(), holder.getSurfaceFrame().height());
+        }
         EagleUtil.log("DisplaySize : " + v);
         glManager.setSurfaceSize((int) v.x, (int) v.y);
 
-        super.surfaceCreated(arg0);
+        super.surfaceCreated(holder);
     }
 
     /**
@@ -116,12 +120,14 @@ public class OpenGLView extends LooperSurfaceView {
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         this.pixelFormat = format;
         if (glManager == null) {
-            glManager = GLManager.getInstance();
+            glManager = new GLManager();
+            glManager.autoConfigSpec(format, true);
         }
 
         super.surfaceChanged(holder, format, width, height);
-
         Vector2 v = UtilActivity.getDisplaySize(context, new Vector2());
+        glManager.setDeviceSize((int) v.x, (int) v.y);
+        v.set(width, height);
         EagleUtil.log("DisplaySize : " + v);
         glManager.setSurfaceHolder(holder);
         glManager.setSurfaceSize((int) v.x, (int) v.y);
@@ -148,7 +154,7 @@ public class OpenGLView extends LooperSurfaceView {
         destroyed = true;
         /*
          * if( glManager != null ) { glManager.dispose(); }
-         */
         glManager = null;
+         */
     }
 }

@@ -58,6 +58,14 @@ public class Figure {
         return meshs.get(index);
     }
 
+    public Mesh removeMesh(int index) {
+        return meshs.remove(index);
+    }
+
+    public void insertMesh(int index, Mesh mesh) {
+        meshs.add(index, mesh);
+    }
+
     /**
      * 描画を行う。
      */

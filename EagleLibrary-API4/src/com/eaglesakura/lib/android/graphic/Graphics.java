@@ -8,6 +8,7 @@ package com.eaglesakura.lib.android.graphic;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Paint.Style;
@@ -42,6 +43,32 @@ public class Graphics {
      */
     public void setCanvas(Canvas canvas) {
         this.canvas = canvas;
+        if (canvas != null) {
+            setWidth(canvas.getWidth());
+            setHeight(canvas.getHeight());
+        }
+    }
+
+    int width = 0;
+    int height = 0;
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    /**
+     * 描画時のスケーリングを指定する。
+     * @param x
+     * @param y
+     */
+    public void setDrawScalling(float x, float y) {
+        Matrix m = new Matrix();
+        m.setScale(x, y);
+        canvas.setMatrix(m);
     }
 
     /**
@@ -65,7 +92,7 @@ public class Graphics {
      * @version 2009/11/30 : 新規作成
      */
     public int getWidth() {
-        return canvas.getWidth();
+        return width;
     }
 
     /**
@@ -76,7 +103,7 @@ public class Graphics {
      * @version 2009/11/30 : 新規作成
      */
     public int getHeight() {
-        return canvas.getHeight();
+        return height;
     }
 
     /**

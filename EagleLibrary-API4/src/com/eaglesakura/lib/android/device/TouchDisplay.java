@@ -5,10 +5,11 @@
  */
 package com.eaglesakura.lib.android.device;
 
-import com.eaglesakura.lib.util.EagleUtil;
-
 import android.graphics.Point;
 import android.view.MotionEvent;
+
+import com.eaglesakura.lib.math.Vector2;
+import com.eaglesakura.lib.util.EagleUtil;
 
 /**
  * @author eagle.sakura
@@ -179,6 +180,17 @@ public class TouchDisplay {
     }
 
     /**
+     * タッチのスケーリング補正を行う。
+     * @param x
+     * @param y
+     */
+    public void setSizeScalling(float x, float y) {
+        for (TouchPoint tp : touchPoints) {
+            tp.setSizeScalling(x, y);
+        }
+    }
+
+    /**
      * @author eagle.sakura
      * @version 2010/07/19 : 新規作成
      */
@@ -226,6 +238,8 @@ public class TouchDisplay {
         @SuppressWarnings("all")
         private int id = -1;
 
+        private Vector2 sizeScalling = new Vector2(1, 1);
+
         /**
          * タッチ一箇所の値に対応している。
          *
@@ -235,6 +249,11 @@ public class TouchDisplay {
          */
         public TouchPoint(int id) {
             this.id = id;
+        }
+
+        void setSizeScalling(float x, float y) {
+            sizeScalling.x = x;
+            sizeScalling.y = y;
         }
 
         /**
@@ -310,7 +329,7 @@ public class TouchDisplay {
          * @version 2009/11/19 : 新規作成
          */
         public int getDrugVectorX() {
-            return releasePos.x - touchPos.x;
+            return (int) ((releasePos.x - touchPos.x) * sizeScalling.x);
         }
 
         /**
@@ -321,7 +340,7 @@ public class TouchDisplay {
          * @version 2009/12/06 : 新規作成
          */
         public int getTouchPosX() {
-            return touchPos.x;
+            return (int) (touchPos.x * sizeScalling.x);
         }
 
         /**
@@ -332,7 +351,7 @@ public class TouchDisplay {
          * @version 2009/12/06 : 新規作成
          */
         public int getTouchPosY() {
-            return touchPos.y;
+            return (int) (touchPos.y * sizeScalling.y);
         }
 
         /**
@@ -343,7 +362,7 @@ public class TouchDisplay {
          * @version 2010/07/20 : 新規作成
          */
         public int getCurrentX() {
-            return releasePos.x;
+            return (int) (releasePos.x * sizeScalling.x);
         }
 
         /**
@@ -354,7 +373,7 @@ public class TouchDisplay {
          * @version 2010/07/20 : 新規作成
          */
         public int getCurrentY() {
-            return releasePos.y;
+            return (int) (releasePos.y * sizeScalling.y);
         }
 
         /**
@@ -367,7 +386,8 @@ public class TouchDisplay {
          * @version 2010/07/20 : 新規作成
          */
         public float getLength(int x, int y) {
-            int lx = releasePos.x - x, ly = releasePos.y - y;
+            int lx = (int) (releasePos.x * sizeScalling.x) - x, ly = (int) (releasePos.y * sizeScalling.y) - y;
+
             return (float) Math.sqrt((double) (lx * lx + ly * ly));
         }
 
@@ -387,7 +407,7 @@ public class TouchDisplay {
          * @version 2009/11/19 : 新規作成
          */
         public int getDrugVectorY() {
-            return releasePos.y - touchPos.y;
+            return (int) ((releasePos.y - touchPos.y) * sizeScalling.y);
         }
 
         /**
