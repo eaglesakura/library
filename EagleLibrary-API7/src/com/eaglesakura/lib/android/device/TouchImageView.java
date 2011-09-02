@@ -1,5 +1,6 @@
 package com.eaglesakura.lib.android.device;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -15,6 +16,7 @@ import android.view.View;
 import android.view.GestureDetector.OnDoubleTapListener;
 
 import com.eaglesakura.lib.android.graphic.Graphics;
+import com.eaglesakura.lib.android.util.UtilActivity;
 import com.eaglesakura.lib.math.Vector2;
 
 public class TouchImageView extends View {
@@ -28,6 +30,7 @@ public class TouchImageView extends View {
     OnLongClickListener onLongClickListener = null;
     OnClickListener onClickListener = null;
     Handler handler = null;
+    Vector2 activityDisplaySize = null;
 
     public TouchImageView(Context context) {
         super(context);
@@ -120,6 +123,11 @@ public class TouchImageView extends View {
                 }
             }
         });
+
+        if (context instanceof Activity) {
+            activityDisplaySize = UtilActivity.getDisplaySize(context, new Vector2());
+
+        }
     }
 
     final int eAnimationDelay = 1000 / 60;
@@ -201,7 +209,12 @@ public class TouchImageView extends View {
         Graphics graphics = new Graphics();
         graphics.setCanvas(canvas);
         graphics.setColorARGB(255, 0, 0, 0);
-        graphics.fillRect(0, 0, graphics.getWidth(), graphics.getHeight());
+
+        if (activityDisplaySize != null) {
+            graphics.fillRect(0, 0, (int) activityDisplaySize.x, (int) activityDisplaySize.y);
+        } else {
+            graphics.fillRect(0, 0, graphics.getWidth(), graphics.getHeight());
+        }
         image.setBounds(bounds.left, bounds.top, bounds.right, bounds.bottom);
         image.draw(canvas);
     }

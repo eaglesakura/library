@@ -422,6 +422,10 @@ public class GLManager {
      * @version 2009/11/14 : 新規作成
      */
     public void swapBuffers() {
+        if (egl == null || glDisplay == null || glSurface == null) {
+            return;
+        }
+
         // 画面に出力するバッファの切り替え
 
         if (!egl.eglSwapBuffers(glDisplay, glSurface)) {
@@ -436,18 +440,6 @@ public class GLManager {
                 EagleUtil.log(e);
             }
         }
-
-        /*
-         * egl.eglSwapBuffers( glDisplay, glSurface ); if( egl.eglGetError() !=
-         * EGL10.EGL_SUCCESS ) { try { EagleUtil.log( "swaperror : " +
-         * egl.eglGetError() ); egl.eglDestroySurface( glDisplay, glSurface );
-         * egl.eglMakeCurrent( glDisplay, EGL10.EGL_NO_SURFACE,
-         * EGL10.EGL_NO_SURFACE, glContext ); glSurface =
-         * egl.eglCreateWindowSurface( glDisplay, glConfig, holder, null );
-         * egl.eglMakeCurrent( glDisplay, glSurface, glSurface, glContext );
-         * egl.eglSwapBuffers( glDisplay, glSurface ); } catch( Exception e ) {
-         * EagleUtil.log( e ); } }
-         */
     }
 
     /**
@@ -487,17 +479,6 @@ public class GLManager {
      */
     EGL10.EGL_NONE // ! 終端にはEGL_NONEを入れる
     };
-
-    /**
-     * 初期化設定を入れ替える。
-     *
-     * @author eagle.sakura
-     * @param specs
-     * @version 2010/07/27 : 新規作成
-     */
-    private void setConfigSpec(int[] specs) {
-        configSpec = specs;
-    }
 
     /**
      * 自動でコンフィグを設定する。
