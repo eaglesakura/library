@@ -208,9 +208,11 @@ public class LooperHandler implements ILoopManager, Callback {
         if (runner != null) {
             handler.removeCallbacks(runner);
         }
-        LooperHandler.this.looper.onFinalize();
-        LooperHandler.this.looper = null;
-        LooperHandler.this.finish = true;
+        if (looper != null) {
+            looper.onFinalize();
+        }
+        looper = null;
+        finish = true;
     }
 
     @Override

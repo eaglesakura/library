@@ -263,6 +263,35 @@ public class UtilActivity extends Activity {
      * @return
      * @version 2010/06/12 : 新規作成
      */
+    public static boolean copyFile(Context context, InputStream input, Uri output) {
+        OutputStream os = null;
+
+        try {
+            os = context.getContentResolver().openOutputStream(output);
+            copyFile(context, input, os);
+            os.close();
+            return true;
+        } catch (Exception e) {
+            try {
+                if (os != null) {
+                    os.close();
+                }
+            } catch (IOException ioe) {
+
+            }
+            return false;
+        }
+    }
+
+    /**
+     *
+     * @author eagle.sakura
+     * @param context
+     * @param input
+     * @param output
+     * @return
+     * @version 2010/06/12 : 新規作成
+     */
     public static boolean copyFile(Context context, Uri input, Uri output) {
         OutputStream os = null;
 
@@ -280,6 +309,42 @@ public class UtilActivity extends Activity {
 
             }
             return false;
+        }
+    }
+
+    /**
+     *
+     * @author eagle.sakura
+     * @param origin
+     * @param os
+     * @version 2010/06/12 : 新規作成
+     */
+    public static void copyFile(Context context, InputStream is, OutputStream os) throws IOException {
+        byte[] temp = new byte[1024 * 512];
+
+        try {
+            while (is.available() > 0) {
+                if (is.available() > temp.length) {
+                    is.read(temp);
+                    os.write(temp);
+                } else {
+                    int size = is.available();
+                    is.read(temp);
+                    os.write(temp, 0, size);
+                }
+            }
+
+            os.flush();
+            is.close();
+        } catch (IOException ioe) {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (Exception e) {
+
+                }
+            }
+            throw ioe;
         }
     }
 

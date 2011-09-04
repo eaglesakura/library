@@ -854,21 +854,29 @@ public class GLManager {
     public void dispose() {
 
         try {
+            // レンダリングコンテキストとの結びつけは解除
+            egl.eglMakeCurrent(glDisplay, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT);
             // サーフェイス破棄
             if (glSurface != null) {
-                // レンダリングコンテキストとの結びつけは解除
-                egl.eglMakeCurrent(glDisplay, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT);
-
                 egl.eglDestroySurface(glDisplay, glSurface);
                 glSurface = null;
             }
 
+        } catch (Exception e) {
+            EagleUtil.log(e);
+        }
+
+        try {
             // レンダリングコンテキスト破棄
             if (glContext != null) {
                 egl.eglDestroyContext(glDisplay, glContext);
                 glContext = null;
             }
 
+        } catch (Exception e) {
+            EagleUtil.log(e);
+        }
+        try {
             // ディスプレイコネクション破棄
             if (glDisplay != null) {
                 egl.eglTerminate(glDisplay);
