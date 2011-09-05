@@ -203,6 +203,15 @@ public class SensorDevice implements SensorEventListener {
     }
 
     /**
+     * 各パラメータをリセットする。
+     */
+    public void resetValues() {
+        for (int i = 0; i < value.length; ++i) {
+            value[i] = 0;
+        }
+    }
+
+    /**
      * センサーの値が変更された。
      *
      * @author eagle.sakura
