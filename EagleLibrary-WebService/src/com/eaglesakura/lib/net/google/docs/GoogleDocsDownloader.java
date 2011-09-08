@@ -154,7 +154,17 @@ public class GoogleDocsDownloader {
      */
     public void start(GoogleDocsEntries.Entry entry) throws IOException {
         EagleUtil.log(entry.getTitle() + " :: " + entry.getContentSize() + "bytes = " + entry.getContentUrl());
-        response = getResponse(entry.getContentUrl(), entry.getContentSize());
+        start(entry.getContentUrl(), entry.getContentSize());
+    }
+
+    /**
+     * ダウンロードを開始する。
+     * @param url
+     * @param length
+     * @throws IOException
+     */
+    public void start(String url, long length) throws IOException {
+        response = getResponse(url, length);
         EagleUtil.log("header : " + response.headers);
         stream = response.getContent();
     }

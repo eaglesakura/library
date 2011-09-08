@@ -101,7 +101,7 @@ public class FileDownloader {
 
         //! URLを探す
         GoogleDocsEntries entries = new GoogleDocsEntries(email, password);
-        entries.access(srcFileName, true);
+        entries.search(srcFileName, true);
 
         if (entries.getEntriesCount() == 0) {
             throw new FileNotFoundException("not exists google docs : " + srcFileName);
@@ -135,7 +135,7 @@ public class FileDownloader {
 
         //! URLを探す
         GoogleDocsEntries entries = new GoogleDocsEntries(token);
-        entries.access(srcFileName, true);
+        entries.search(srcFileName, true);
 
         if (entries.getEntriesCount() == 0) {
             throw new FileNotFoundException("not exists google docs : " + srcFileName);

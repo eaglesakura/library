@@ -47,6 +47,11 @@ public class GoogleDocsEntries {
      */
     List<Entry> entries = new ArrayList<Entry>();
 
+    /**
+     * 次のページを持っているか。
+     */
+    String nextURL = null;
+
     String applicationName = "Eagle/GoogleDocsDownloader";
 
     public GoogleDocsEntries(String token) {
@@ -75,6 +80,24 @@ public class GoogleDocsEntries {
     }
 
     /**
+     * 次のAPI戻り値を持っている場合trueを返す。
+     * @return
+     */
+    public boolean hasNextResult() {
+        return nextURL != null;
+    }
+
+    /**
+     * 次のページを読み込む。
+     * @throws IOException
+     */
+    public void getNextPage() throws IOException {
+        if (hasNextResult()) {
+            accessURL(nextURL);
+        }
+    }
+
+    /**
      * docsにアクセスし、アイテム一覧を取得する。
      * @param keyword 検索ワード。nullですべて取得。
      * @throws IOException
@@ -98,11 +121,15 @@ public class GoogleDocsEntries {
 
         {
             HttpRequest request = transport.buildGetRequest();
-            String url = "https://docs.google.com/feeds/default/private/full" + _url;
+            if (_url.startsWith("?")) {
+                _url = "https://docs.google.com/feeds/default/private/full" + _url;
+            }
+            String url = _url;
             EagleUtil.log("search url : " + url);
             request.url = new GoogleUrl(url);
             HttpResponse responce = request.execute();
 
+            //            printResponce(responce);
             {
                 // 送信
                 Feed feed = responce.parseAs(Feed.class);
@@ -118,8 +145,30 @@ public class GoogleDocsEntries {
                         entries.add(new Entry(entry));
                     }
                 }
+
+                nextURL = null;
+                if (feed.links != null) {
+                    for (Link link : feed.links) {
+                        EagleUtil.log("rel : " + link.rel);
+                        EagleUtil.log("href : " + link.href);
+
+                        if ("next".equals(link.rel) && link.href != null) {
+                            nextURL = link.href;
+                        }
+                    }
+                } else {
+                    EagleUtil.log("no-link");
+                }
             }
         }
+    }
+
+    void printResponce(HttpResponse resp) throws IOException {
+        String str = new String(EagleUtil.decodeStream(resp.getContent()));
+
+        EagleUtil.log(str);
+
+        resp.getContent().reset();
     }
 
     /**
@@ -127,49 +176,30 @@ public class GoogleDocsEntries {
      * @param keyword 検索ワード。nullですべて取得。
      * @throws IOException
      */
-    public void access(String keyword, boolean isQuery) throws IOException {
-        HttpTransport transport = GoogleTransport.create();
-        GoogleHeaders headers = (GoogleHeaders) transport.defaultHeaders;
-        headers.setApplicationName(applicationName);
-        headers.gdataVersion = "3";
+    public void search(String keyword, boolean isQuery) throws IOException {
+        String url = "https://docs.google.com/feeds/default/private/full";
+        if (keyword != null && keyword.length() > 0) {
+            url += ((isQuery ? "?q=" : "?title=") + URLEncoder.encode(keyword, "UTF-8"));
+        }
+        EagleUtil.log("search url : " + url);
 
-        if (token != null) {
-            headers.setGoogleLogin(token);
-        } else {
-            loginEmail(transport);
+        accessURL(url);
+    }
+
+    /**
+     * 全てのアイテムを一括で取得する。
+     * @param keyword
+     * @param isQuery
+     * @throws IOException
+     */
+    public void searchFullPage(String keyword, boolean isQuery, boolean sort) throws IOException {
+        search(keyword, isQuery);
+        while (hasNextResult()) {
+            getNextPage();
         }
 
-        //! parser
-        AtomParser parser = new AtomParser();
-        parser.namespaceDictionary = new XmlNamespaceDictionary();
-        transport.addParser(parser);
-
-        {
-            HttpRequest request = transport.buildGetRequest();
-            String url = "https://docs.google.com/feeds/default/private/full";
-            if (keyword != null && keyword.length() > 0) {
-                url += ((isQuery ? "?q=" : "?title=") + URLEncoder.encode(keyword, "UTF-8"));
-            }
-            EagleUtil.log("search url : " + url);
-            request.url = new GoogleUrl(url);
-            HttpResponse responce = request.execute();
-
-            {
-                // 送信
-                Feed feed = responce.parseAs(Feed.class);
-
-                try {
-                    responce.getContent().close();
-                } catch (Exception e) {
-                    EagleUtil.log(e);
-                }
-                //                            final String key = "@src";
-                if (feed.entries != null) {
-                    for (EntryItem entry : feed.entries) {
-                        entries.add(new Entry(entry));
-                    }
-                }
-            }
+        if (sort) {
+            sortByName();
         }
     }
 
@@ -255,6 +285,17 @@ public class GoogleDocsEntries {
     public static class Feed {
         @Key("entry")
         public List<EntryItem> entries;
+
+        @Key("link")
+        public List<Link> links;
+    }
+
+    public static class Link {
+        @Key("@href")
+        public String href;
+
+        @Key("@rel")
+        public String rel;
     }
 
     /**
