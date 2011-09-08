@@ -30,7 +30,7 @@ public class ResumeTest extends AndroidTestCase {
     public void docsDownloadTest() throws IOException {
         String keyword = "jdh";
         GoogleDocsEntries entries = new GoogleDocsEntries(mail, pass);
-        entries.access(keyword, true);
+        entries.search(keyword, true);
 
         GoogleDocsEntries.Entry entry = entries.getEntry(0);
         EagleUtil.log("name : " + entry.getTitle());
@@ -52,7 +52,7 @@ public class ResumeTest extends AndroidTestCase {
 
         GoogleDocsEntries entries = new GoogleDocsEntries(mail, pass);
 
-        entries.access(keyword, true);
+        entries.search(keyword, true);
 
         GoogleDocsEntries.Entry entry = entries.getEntry(0);
         EagleUtil.log("name : " + entry.getTitle());

@@ -5,6 +5,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -98,6 +99,46 @@ public class GoogleDocsEntries {
     }
 
     /**
+     * Google Docs APIの指定URLから情報を取得する。
+     * @param _url
+     * @return
+     * @throws IOException
+     */
+    public byte[] getResult(String _url) throws IOException {
+        HttpTransport transport = GoogleTransport.create();
+        GoogleHeaders headers = (GoogleHeaders) transport.defaultHeaders;
+        headers.setApplicationName(applicationName);
+        headers.gdataVersion = "3";
+
+        if (token != null) {
+            headers.setGoogleLogin(token);
+        } else {
+            loginEmail(transport);
+        }
+
+        //! parser
+        AtomParser parser = new AtomParser();
+        parser.namespaceDictionary = new XmlNamespaceDictionary();
+        transport.addParser(parser);
+
+        {
+            HttpRequest request = transport.buildGetRequest();
+            final String url = _url;
+            EagleUtil.log("search url : " + url);
+            request.url = new GoogleUrl(url);
+            HttpResponse responce = request.execute();
+            byte[] buffer = EagleUtil.decodeStream(responce.getContent());
+
+            try {
+                responce.ignore();
+            } catch (Exception e) {
+
+            }
+            return buffer;
+        }
+    }
+
+    /**
      * docsにアクセスし、アイテム一覧を取得する。
      * @param keyword 検索ワード。nullですべて取得。
      * @throws IOException
@@ -136,6 +177,7 @@ public class GoogleDocsEntries {
 
                 try {
                     responce.getContent().close();
+                    responce.ignore();
                 } catch (Exception e) {
                     EagleUtil.log(e);
                 }
@@ -149,8 +191,8 @@ public class GoogleDocsEntries {
                 nextURL = null;
                 if (feed.links != null) {
                     for (Link link : feed.links) {
-                        EagleUtil.log("rel : " + link.rel);
-                        EagleUtil.log("href : " + link.href);
+                        //                        EagleUtil.log("rel : " + link.rel);
+                        //                        EagleUtil.log("href : " + link.href);
 
                         if ("next".equals(link.rel) && link.href != null) {
                             nextURL = link.href;
@@ -204,6 +246,73 @@ public class GoogleDocsEntries {
     }
 
     /**
+     * Google Docsフォルダを取得する。
+     * @return
+     */
+    public Directory getDocsDirectory() throws IOException {
+
+        //! まずはデータを取得する。
+        accessURL("https://docs.google.com/feeds/default/private/full/-/folder");
+        while (hasNextResult()) {
+            getNextPage();
+        }
+
+        Directory root = new Directory();
+
+        //! 属性URLとEntryのマップを作成する
+        Map<String, Entry> entryMap = new HashMap<String, Entry>();
+        Map<String, Directory> directoryMap = new HashMap<String, Directory>();
+        {
+            for (Entry entry : this.entries) {
+                entryMap.put(entry.self.href, entry);
+                directoryMap.put(entry.self.href, new Directory(entry));
+            }
+        }
+
+        //! 全部のマップの親属性を設定する。
+        {
+            for (Entry entry : this.entries) {
+                Directory self = directoryMap.get(entry.self.href);
+                if (entry.parent != null) {
+                    //! 親を検索する
+                    Directory parent = directoryMap.get(entry.parent.href);
+                    parent.addDirectory(self);
+                } else {
+                    //! 親がいないからRoot属性にする
+                    root.addDirectory(self);
+                }
+            }
+        }
+
+        return root;
+    }
+
+    /**
+     * Docsのアイテムをディレクトリを所属させる。
+     * どこにも所属していないアイテムはRootに所属させる。
+     * @param root
+     */
+    public void bindDirectory(Directory root) {
+        for (Entry entry : entries) {
+            Directory parent = null;
+            String parentHref = null;
+            if (entry.getParentLink() != null) {
+                parentHref = entry.getParentLink().href;
+            }
+
+            if (parentHref != null) {
+                parent = root.searchHref(parentHref);
+            }
+
+            if (parent == null) {
+                parent = root;
+            }
+
+            parent.addEntry(entry);
+        }
+    }
+
+    /**
      * 同名のファイルを持っていたらtrue
      * @param name
      * @return
@@ -250,10 +359,27 @@ public class GoogleDocsEntries {
         String contentUrl = null;
         long contentSize = 0;
 
+        Link self = null;
+        Link parent = null;
+
         public Entry(EntryItem item) {
             title = item.title;
-            if (item.content != null && item.content.get("@src") != null) {
-                contentUrl = item.content.get("@src").toString();
+            if (item.content != null) {
+
+                if (item.content.get("@src") != null) {
+                    contentUrl = item.content.get("@src").toString();
+                }
+
+            }
+
+            if (item.links != null) {
+                for (Link link : item.links) {
+                    if ("http://schemas.google.com/docs/2007#parent".equals(link.rel) && link.title != null) {
+                        parent = link;
+                    } else if ("self".equals(link.rel)) {
+                        self = link;
+                    }
+                }
             }
             contentSize = Long.parseLong(item.quotaBytesUsed);
         }
@@ -277,6 +403,22 @@ public class GoogleDocsEntries {
         public long getContentSize() {
             return contentSize;
         }
+
+        /**
+         * 親属性を取得する。
+         * @return
+         */
+        public Link getParentLink() {
+            return parent;
+        }
+
+        /**
+         * 自分の属性を取得する。
+         * @return
+         */
+        public Link getSelfLink() {
+            return self;
+        }
     }
 
     /**
@@ -296,6 +438,9 @@ public class GoogleDocsEntries {
 
         @Key("@rel")
         public String rel;
+
+        @Key("@title")
+        public String title;
     }
 
     /**
@@ -317,11 +462,157 @@ public class GoogleDocsEntries {
         @Key("gd:quotaBytesUsed")
         public String quotaBytesUsed;
 
-        @Key
-        public Map<String, String> link;
+        @Key("link")
+        public List<Link> links;
 
         @Key
         public Map<String, String> content;
+    }
 
+    /**
+     * Docs内部のフォルダを示す。
+     * @author SAKURA
+     *
+     */
+    public static class Directory {
+        /**
+         * フォルダ名
+         */
+        String title = null;
+
+        /**
+         * 一意なURL
+         */
+        String href = "";
+
+        /**
+         * 親となるフォルダURL
+         */
+        String parent = null;
+
+        /**
+         * サブディレクトリを示す。
+         */
+        List<Directory> childs = new ArrayList<Directory>();
+
+        /**
+         * 含まれているアイテムを示す。
+         */
+        List<Entry> items = new ArrayList<Entry>();
+
+        /**
+         * フォルダを構成する。
+         * @param item
+         */
+        public Directory(Entry item) {
+            title = item.title;
+            href = item.self.href;
+            if (item.parent != null) {
+                parent = item.parent.href;
+            }
+        }
+
+        /**
+         * メインフォルダを構築する。
+         */
+        public Directory() {
+            title = "root";
+        }
+
+        /**
+         * ディレクトリを追加する。
+         * @param dir
+         */
+        public void addDirectory(Directory dir) {
+            if (childs.indexOf(dir) < 0) {
+                childs.add(dir);
+            }
+        }
+
+        /**
+         * リンクするアイテムを追加する。
+         * @param item
+         */
+        public void addEntry(Entry item) {
+            if (items.indexOf(item) < 0) {
+                items.add(item);
+            }
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public String getHref() {
+            return href;
+        }
+
+        public int getChildCount() {
+            return childs.size();
+        }
+
+        public Directory getChild(int index) {
+            return childs.get(index);
+        }
+
+        public Directory getChild(String name) {
+            for (Directory dir : childs) {
+                if (dir.getTitle().equals(name)) {
+                    return dir;
+                }
+            }
+            return null;
+        }
+
+        /**
+         * URLからディレクトリを検索する。
+         * サブディレクトリも検索対象となる。
+         * @param href
+         * @return
+         */
+        public Directory searchHref(String href) {
+            if (getHref().equals(href)) {
+                return this;
+            }
+
+            for (Directory dir : childs) {
+                if (dir.getHref().equals(href)) {
+                    return dir;
+                }
+                Directory result = dir.searchHref(href);
+                if (result != null) {
+                    return result;
+                }
+            }
+
+            return null;
+        }
+
+        public int getEntryCount() {
+            return items.size();
+        }
+
+        public Entry getEntry(int index) {
+            return items.get(index);
+        }
+
+        public void sort() {
+            Collections.sort(items, new Comparator<Entry>() {
+                @Override
+                public int compare(Entry object1, Entry object2) {
+                    return object1.getTitle().compareTo(object2.getTitle());
+                }
+            });
+            Collections.sort(childs, new Comparator<Directory>() {
+                @Override
+                public int compare(Directory object1, Directory object2) {
+                    return object1.getTitle().compareTo(object2.getTitle());
+                }
+            });
+
+            for (Directory dir : childs) {
+                dir.sort();
+            }
+        }
     }
 }
