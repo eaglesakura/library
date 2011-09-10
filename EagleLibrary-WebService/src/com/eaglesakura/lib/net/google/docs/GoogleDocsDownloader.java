@@ -208,6 +208,7 @@ public class GoogleDocsDownloader {
             stream = null;
         }
 
+        response.ignore();
         response = null;
     }
 

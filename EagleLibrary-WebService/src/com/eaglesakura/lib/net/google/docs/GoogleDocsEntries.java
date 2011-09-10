@@ -596,6 +596,15 @@ public class GoogleDocsEntries {
             return items.get(index);
         }
 
+        public Entry getEntry(String name) {
+            for (Entry entry : items) {
+                if (entry.getTitle().equals(name)) {
+                    return entry;
+                }
+            }
+            return null;
+        }
+
         public void sort() {
             Collections.sort(items, new Comparator<Entry>() {
                 @Override
