@@ -183,9 +183,15 @@ public class TouchImageView extends View {
 
     public void setImageBitmap(Bitmap bitmap) {
         this.bitmap = bitmap;
-        image = new BitmapDrawable(bitmap);
-        bounds.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
-        fitToOrigin();
+        if (bitmap != null) {
+            image = new BitmapDrawable(bitmap);
+            bounds.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
+            fitToOrigin();
+        }
+    }
+
+    public Bitmap getBitmap() {
+        return bitmap;
     }
 
     @Override
@@ -202,7 +208,7 @@ public class TouchImageView extends View {
 
     @Override
     public void draw(Canvas canvas) {
-        if (image == null) {
+        if (image == null || bitmap == null) {
             return;
         }
 
