@@ -24,11 +24,6 @@ public class DataInputStream implements Disposable {
     private IBufferReader reader = null;
 
     /**
-     * バイトオーダー変換。
-     */
-    private ByteOrder order = ByteOrder.eThrough;
-
-    /**
      * ストリームを生成する。
      *
      * @author eagle.sakura
@@ -61,20 +56,6 @@ public class DataInputStream implements Disposable {
     }
 
     /**
-     * 入力時のバイトオーダー変換方法を指定する。<BR>
-     * ファイル側がリトルエンディアンの場合 {@link ByteOrder#eReversing}、ビッグエンディアンの場合
-     * {@link ByteOrder#eThrough}を指定する。<BR>
-     * 標準では{@link ByteOrder#eThrough}になっている。
-     *
-     * @author eagle.sakura
-     * @param set
-     * @version 2010/06/21 : 新規作成
-     */
-    public void setByteOrder(ByteOrder set) {
-        order = set;
-    }
-
-    /**
      * バッファから１バイト読み取る。
      *
      * @author eagle.sakura
@@ -84,7 +65,6 @@ public class DataInputStream implements Disposable {
     public byte readS8() throws IOException {
         byte[] n = { 0 };
         reader.readBuffer(n, 0, n.length);
-        order.encode(n, 1, 1);
         return n[0];
     }
 
@@ -98,7 +78,6 @@ public class DataInputStream implements Disposable {
     public short readS16() throws IOException {
         byte[] n = { 0, 0 };
         reader.readBuffer(n, 0, n.length);
-        order.encode(n, 2, 1);
 
         int n0 = ((int) n[0] & 0xff);
         int n1 = ((int) n[1] & 0xff);
@@ -117,7 +96,6 @@ public class DataInputStream implements Disposable {
     public int readS24() throws IOException {
         byte[] n = { 0, 0, 0 };
         reader.readBuffer(n, 0, n.length);
-        order.encode(n, 3, 1);
 
         return (int) (((((int) n[0]) & 0xff) << 16) | ((((int) n[1]) & 0xff) << 8) | ((((int) n[2]) & 0xff) << 0));
     }
@@ -154,7 +132,6 @@ public class DataInputStream implements Disposable {
     public int readS32() throws IOException {
         byte[] n = { 0, 0, 0, 0 };
         reader.readBuffer(n, 0, n.length);
-        order.encode(n, 4, 1);
 
         int n0 = ((int) n[0] & 0xff);
         int n1 = ((int) n[1] & 0xff);
@@ -174,7 +151,6 @@ public class DataInputStream implements Disposable {
     public long readS64() throws IOException {
         byte[] n = { 0, 0, 0, 0, 0, 0, 0, 0 };
         reader.readBuffer(n, 0, n.length);
-        order.encode(n, 8, 1);
 
         long n0 = ((int) n[0] & 0xff);
         long n1 = ((int) n[1] & 0xff);
