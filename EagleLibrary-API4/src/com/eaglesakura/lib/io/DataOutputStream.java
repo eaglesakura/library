@@ -13,7 +13,7 @@ import com.eaglesakura.lib.util.EagleUtil;
  * @author eagle.sakura
  * @version 2010/02/23 : 新規作成
  */
-public class DataOutputStream implements Disposable {
+public final class DataOutputStream implements Disposable {
     /**
      * 入出力。
      */
@@ -137,10 +137,43 @@ public class DataOutputStream implements Disposable {
      * @param length
      * @version 2010/06/06 : 新規作成
      */
-    public void writeS32Array(int[] buffer) throws IOException {
+    public final void writeS32Array(final int[] buffer) throws IOException {
         byte[] temp = new byte[buffer.length * 4];
         int ptr = 0;
         for (int n : buffer) {
+            temp[ptr] = (byte) ((n >> 24) & 0xff);
+            ptr++;
+            temp[ptr] = (byte) ((n >> 16) & 0xff);
+            ptr++;
+            temp[ptr] = (byte) ((n >> 8) & 0xff);
+            ptr++;
+            temp[ptr] = (byte) ((n >> 0) & 0xff);
+            ptr++;
+        }
+        writeBuffer(temp, 0, temp.length);
+    }
+
+    /**
+     * 8バイト整数の配列を保存する。
+     *
+     * @author eagle.sakura
+     * @param buffer
+     * @param position
+     * @param length
+     * @version 2010/06/06 : 新規作成
+     */
+    public final void writeS64Array(final long[] buffer) throws IOException {
+        final byte[] temp = new byte[buffer.length * 8];
+        int ptr = 0;
+        for (long n : buffer) {
+            temp[ptr] = (byte) ((n >> 56) & 0xff);
+            ptr++;
+            temp[ptr] = (byte) ((n >> 48) & 0xff);
+            ptr++;
+            temp[ptr] = (byte) ((n >> 40) & 0xff);
+            ptr++;
+            temp[ptr] = (byte) ((n >> 32) & 0xff);
+            ptr++;
             temp[ptr] = (byte) ((n >> 24) & 0xff);
             ptr++;
             temp[ptr] = (byte) ((n >> 16) & 0xff);
