@@ -23,4 +23,8 @@ public class PasswordEncodeOutputStream extends OutputStream {
         ++current;
     }
 
+    @Override
+    public void close() throws IOException {
+        os.close();
+    }
 }

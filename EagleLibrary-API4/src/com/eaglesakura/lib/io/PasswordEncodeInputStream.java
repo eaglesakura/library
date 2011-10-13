@@ -59,4 +59,9 @@ public class PasswordEncodeInputStream extends InputStream {
         }
         return result;
     }
+
+    @Override
+    public void close() throws IOException {
+        is.close();
+    }
 }

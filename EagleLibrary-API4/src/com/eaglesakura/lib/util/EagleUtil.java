@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Random;
@@ -551,12 +552,33 @@ public class EagleUtil {
     }
 
     /**
+     * POST/PUTの状態を取得する。
+     * @author SAKURA
+     *
+     */
+    public static class HttpResult {
+        public int status;
+        public byte[] datas;
+    }
+
+    static String basicAutorization = null;
+
+    /**
+     * ベーシック認証の認証文字列を設定する。
+     * user:passをbase64したものを渡すこと。
+     * @param basicAutorization
+     */
+    public static void setBasicAutorization(String basicAutorizationBase64) {
+        EagleUtil.basicAutorization = basicAutorizationBase64;
+    }
+
+    /**
      * 指定URLへデータを送信する。
      * @param url
      * @return
      * @throws IOException
      */
-    public static byte[] postURLData(String url, byte[] data, String contentType) throws IOException {
+    public static HttpResult postURLData(String url, byte[] data, String contentType) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) (new URL(url)).openConnection();
         connection.setDoOutput(true);
         connection.setRequestProperty("Content-Type", contentType); // ヘッダを設定
@@ -566,10 +588,49 @@ public class EagleUtil {
         try {
             datas = decodeStream(connection.getInputStream());
         } catch (Exception e) {
+            datas = decodeStream(connection.getErrorStream());
         }
         int resp = connection.getResponseCode();
         EagleUtil.log("Response : " + resp);
-        return datas;
+
+        HttpResult result = new HttpResult();
+        result.status = resp;
+        result.datas = datas;
+        return result;
+    }
+
+    /**
+     * 指定URLへデータを送信する。
+     * @param url
+     * @return
+     * @throws IOException
+     */
+    public static HttpResult putURLData(String url, byte[] data, String contentType) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) (new URL(url)).openConnection();
+        connection.setDoOutput(true);
+        connection.setRequestMethod("PUT");
+        connection.setRequestProperty("Content-Type", contentType); // ヘッダを設定
+        connection.setRequestProperty("Content-Length", "" + data.length); //!<    データの長さを指定
+        if (basicAutorization != null) {
+            connection.setRequestProperty("Authorization", "Basic " + basicAutorization);
+        }
+        connection.connect();
+
+        OutputStream os = connection.getOutputStream();
+        os.write(data);
+        os.close();
+        int resp = connection.getResponseCode();
+        byte[] datas = null;
+        try {
+            datas = decodeStream(connection.getInputStream());
+        } catch (Exception e) {
+            datas = decodeStream(connection.getErrorStream());
+        }
+
+        HttpResult result = new HttpResult();
+        result.status = resp;
+        result.datas = datas;
+        return result;
     }
 
     /**
