@@ -17,7 +17,7 @@ import com.eaglesakura.lib.util.EagleUtil;
  * @author eagle.sakura
  * @version 2009/11/15 : 新規作成
  */
-public class DataInputStream implements Disposable {
+public final class DataInputStream implements Disposable {
     /**
      * 読み取りに使用するリーダー。
      */
@@ -162,7 +162,34 @@ public class DataInputStream implements Disposable {
         long n6 = ((int) n[6] & 0xff);
         long n7 = ((int) n[7] & 0xff);
 
-        return (((long) (n0 << 24) | (n1 << 16) | (n2 << 8) | (n3 << 0)) << 32) | ((long) (n4 << 24) | (n5 << 16) | (n6 << 8) | (n7 << 0));
+        return (((long) (n0 << 24) | (n1 << 16) | (n2 << 8) | (n3 << 0)) << 32)
+                | ((long) (n4 << 24) | (n5 << 16) | (n6 << 8) | (n7 << 0));
+    }
+
+    /**
+     * write64Arrayした配列を取り出す。
+     * @return
+     * @throws IOException
+     */
+    public long[] readS64Array() throws IOException {
+        //! 配列数を取り出す
+        final int length = readS32();
+        final long[] result = new long[length];
+        final byte[] buffer = readBuffer(result.length * 8);
+        int ptr = 0;
+        //! longに変換する。
+        for (int i = 0; i < length; ++i) {
+            result[i] |= (long) ((((long) buffer[ptr++]) & 0xff) << 56);
+            result[i] |= (long) ((((long) buffer[ptr++]) & 0xff) << 48);
+            result[i] |= (long) ((((long) buffer[ptr++]) & 0xff) << 40);
+            result[i] |= (long) ((((long) buffer[ptr++]) & 0xff) << 32);
+            result[i] |= (long) ((((long) buffer[ptr++]) & 0xff) << 24);
+            result[i] |= (long) ((((long) buffer[ptr++]) & 0xff) << 16);
+            result[i] |= (long) ((((long) buffer[ptr++]) & 0xff) << 8);
+            result[i] |= (long) ((((long) buffer[ptr++]) & 0xff) << 0);
+        }
+
+        return result;
     }
 
     /**

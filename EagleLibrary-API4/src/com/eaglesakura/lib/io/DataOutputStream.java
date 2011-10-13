@@ -115,7 +115,9 @@ public final class DataOutputStream implements Disposable {
      * @version 2010/02/22 : 新規作成
      */
     public void writeS64(long n) throws IOException {
-        byte[] buf = { (byte) ((n >> 56) & 0xff), //!
+        byte[] buf = {
+
+        (byte) ((n >> 56) & 0xff), //!
                 (byte) ((n >> 48) & 0xff), //!
                 (byte) ((n >> 40) & 0xff), //!
                 (byte) ((n >> 32) & 0xff), //!
@@ -138,6 +140,7 @@ public final class DataOutputStream implements Disposable {
      * @version 2010/06/06 : 新規作成
      */
     public final void writeS32Array(final int[] buffer) throws IOException {
+        writeS32(buffer.length);
         byte[] temp = new byte[buffer.length * 4];
         int ptr = 0;
         for (int n : buffer) {
@@ -163,6 +166,7 @@ public final class DataOutputStream implements Disposable {
      * @version 2010/06/06 : 新規作成
      */
     public final void writeS64Array(final long[] buffer) throws IOException {
+        writeS32(buffer.length);
         final byte[] temp = new byte[buffer.length * 8];
         int ptr = 0;
         for (long n : buffer) {
