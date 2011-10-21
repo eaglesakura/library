@@ -13,7 +13,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.MessageDigest;
 import java.util.Random;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -539,9 +541,35 @@ public class EagleUtil {
     public static byte[] getURLData(String url) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) (new URL(url)).openConnection();
         connection.setRequestMethod("GET");
+        connection.setInstanceFollowRedirects(true);
         connection
                 .setRequestProperty("User-Agent",
                         "Mozilla/5.0 (Linux; U; Android 1.6; ja-jp; SonyEricssonSO-01B Build/R1EA018)AppleWebKit/528.5+ (KHTML, like Gecko) Version/3.1.2 Mobile Safari/525.20.1");
+        //        connection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)");
+        connection.setConnectTimeout(1000 * 10);
+        connection.connect();
+        connection.getResponseCode();
+
+        //        EagleUtil.log(connection.getHeaderFields().toString());
+        byte[] datas = null;
+        datas = decodeStream(connection.getInputStream());
+
+        return datas;
+    }
+
+    /**
+     * 指定URLからデータを取得する。
+     * @param url
+     * @return
+     * @throws IOException
+     */
+    public static byte[] getURLData(String url, String userAgent) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) (new URL(url)).openConnection();
+        connection.setRequestMethod("GET");
+
+        if (userAgent != null) {
+            connection.setRequestProperty("User-Agent", userAgent);
+        }
         //        connection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)");
         connection.connect();
         connection.getResponseCode();
@@ -643,6 +671,23 @@ public class EagleUtil {
         } catch (Exception e) {
             log(e);
         }
+    }
+
+    public static String genMD5(byte[] buffer) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(buffer);
+            byte[] digest = md.digest();
+
+            StringBuffer sBuffer = new StringBuffer(digest.length * 2);
+            for (byte b : digest) {
+                sBuffer.append(Integer.toHexString(((int) b) & 0xff));
+            }
+            return sBuffer.toString();
+        } catch (Exception e) {
+            return UUID.nameUUIDFromBytes(buffer).toString();
+        }
+
     }
 
     /**
