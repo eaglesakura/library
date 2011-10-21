@@ -540,9 +540,14 @@ public class EagleUtil {
         HttpURLConnection connection = (HttpURLConnection) (new URL(url)).openConnection();
         connection.setRequestMethod("GET");
         connection
-                .setRequestProperty("User-Agent",
+                .setRequestProperty(
+                        "User-Agent",
                         "Mozilla/5.0 (Linux; U; Android 1.6; ja-jp; SonyEricssonSO-01B Build/R1EA018)AppleWebKit/528.5+ (KHTML, like Gecko) Version/3.1.2 Mobile Safari/525.20.1");
         //        connection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)");
+        if (basicAutorization != null) {
+            connection.setRequestProperty("Authorization", "Basic " + basicAutorization);
+        }
+
         connection.connect();
         connection.getResponseCode();
         byte[] datas = null;
