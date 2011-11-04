@@ -7,6 +7,7 @@ package com.eaglesakura.lib.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,8 +15,9 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.MessageDigest;
+import java.util.List;
 import java.util.Random;
-import java.util.UUID;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -132,6 +134,29 @@ public class EagleUtil {
      */
     public static final int getRand(int min, int max) {
         return min + ((getRand() & 0x7fffffff) % (max - min));
+    }
+
+    /**
+     * 指定箇所へファイルをコピーする。
+     * @param src
+     * @param dst
+     * @return
+     */
+    public static final void copy(File src, File dst) throws IOException {
+        InputStream srcStream = new FileInputStream(src);
+        OutputStream dstStream = new FileOutputStream(dst);
+
+        //! 適当なバッファサイズを決める。
+        byte[] buffer = new byte[128 * 1024];
+        int readed = 0;
+
+        //! 読めなくなるまで読み込みを続ける
+        while ((readed = srcStream.read(buffer)) > 0) {
+            dstStream.write(buffer, 0, readed);
+        }
+
+        srcStream.close();
+        dstStream.close();
     }
 
     /**
@@ -574,10 +599,24 @@ public class EagleUtil {
         if (userAgent != null) {
             connection.setRequestProperty("User-Agent", userAgent);
         }
+        connection.setRequestProperty("Accept-Encoding", "gzip");
         connection.connect();
         connection.getResponseCode();
+
+        String encode = null;
+
+        List<String> listStrings = connection.getHeaderFields().get("Content-Encoding");
+        if (listStrings != null && listStrings.size() > 0) {
+            encode = listStrings.get(0);
+            log("encoding : " + listStrings);
+        }
         byte[] datas = null;
-        datas = decodeStream(connection.getInputStream());
+
+        if ("gzip".equals(encode)) {
+            datas = decodeStream(new GZIPInputStream(connection.getInputStream()));
+        } else {
+            datas = decodeStream(connection.getInputStream());
+        }
 
         return datas;
     }
@@ -676,6 +715,11 @@ public class EagleUtil {
         }
     }
 
+    /**
+     * byte配列からMD5を求める
+     * @param buffer
+     * @return
+     */
     public static String genMD5(byte[] buffer) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -688,9 +732,39 @@ public class EagleUtil {
             }
             return sBuffer.toString();
         } catch (Exception e) {
-            return UUID.nameUUIDFromBytes(buffer).toString();
+            return null;
         }
+    }
 
+    /**
+     * ファイルからMD5を求める。
+     * @param file
+     * @return
+     */
+    public static String genMD5(File file) {
+        try {
+
+            FileInputStream is = new FileInputStream(file);
+            final MessageDigest md = MessageDigest.getInstance("MD5");
+            {
+                byte[] buffer = new byte[128 * 1024];
+                int readed = 0;
+
+                while ((readed = is.read(buffer)) > 0) {
+                    md.update(buffer, 0, readed);
+                }
+            }
+            is.close();
+            byte[] digest = md.digest();
+
+            StringBuffer sBuffer = new StringBuffer(digest.length * 2);
+            for (byte b : digest) {
+                sBuffer.append(Integer.toHexString(((int) b) & 0xff));
+            }
+            return sBuffer.toString();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**

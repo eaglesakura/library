@@ -362,6 +362,12 @@ public class GoogleDocsEntries {
         Link self = null;
         Link parent = null;
 
+        String md5 = null;
+
+        String id = null;
+
+        String resourceId = null;
+
         public Entry(EntryItem item) {
             title = item.title;
             if (item.content != null) {
@@ -382,6 +388,17 @@ public class GoogleDocsEntries {
                 }
             }
             contentSize = Long.parseLong(item.quotaBytesUsed);
+            md5 = item.md5;
+            id = item.id;
+            resourceId = item.resourceId;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public String getResourceId() {
+            return resourceId;
         }
 
         /**
@@ -390,6 +407,23 @@ public class GoogleDocsEntries {
          */
         public String getTitle() {
             return title;
+        }
+
+        /**
+         * ファイルのMD5情報を取得する。
+         * MD5を持たない（ディレクトリとか）はnullを返す。
+         * @return
+         */
+        public String getMd5() {
+            return md5;
+        }
+
+        /**
+         * MD5情報を持っていたらtrueを返す。
+         * @return
+         */
+        public boolean hasMD5() {
+            return md5 != null;
         }
 
         /**
@@ -467,6 +501,18 @@ public class GoogleDocsEntries {
 
         @Key
         public Map<String, String> content;
+
+        @Key("docs:md5Checksum")
+        public String md5;
+
+        @Key("gd:etag")
+        public String etag;
+
+        @Key
+        public String id;
+
+        @Key("gd:resourceId")
+        public String resourceId;
     }
 
     /**

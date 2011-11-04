@@ -8,8 +8,8 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="lib" path="/EagleLibrary-WebService/libs/google-api-client-1.2.3-alpha.jar"/>
 	<classpathentry kind="lib" path="/EagleLibrary-WebService/libs/jsonic-1.0.5.jar"/>
+	<classpathentry kind="src" path="EagleLibrary-API7_src"/>
 	<classpathentry kind="src" path="EagleLibrary-WebService_src"/>
 	<classpathentry kind="src" path="EagleLibrary-API4_src"/>
-	<classpathentry kind="src" path="EagleLibrary-API7_src"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

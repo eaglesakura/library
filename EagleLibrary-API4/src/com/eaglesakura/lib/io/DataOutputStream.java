@@ -140,6 +140,31 @@ public final class DataOutputStream implements Disposable {
      * @version 2010/06/06 : 新規作成
      */
     public final void writeS32Array(final int[] buffer) throws IOException {
+        byte[] temp = new byte[buffer.length * 4];
+        int ptr = 0;
+        for (int n : buffer) {
+            temp[ptr] = (byte) ((n >> 24) & 0xff);
+            ptr++;
+            temp[ptr] = (byte) ((n >> 16) & 0xff);
+            ptr++;
+            temp[ptr] = (byte) ((n >> 8) & 0xff);
+            ptr++;
+            temp[ptr] = (byte) ((n >> 0) & 0xff);
+            ptr++;
+        }
+        writeBuffer(temp, 0, temp.length);
+    }
+
+    /**
+     * 4バイト整数の配列を保存する。
+     *
+     * @author eagle.sakura
+     * @param buffer
+     * @param position
+     * @param length
+     * @version 2010/06/06 : 新規作成
+     */
+    public final void writeS32ArrayWithLength(final int[] buffer) throws IOException {
         writeS32(buffer.length);
         byte[] temp = new byte[buffer.length * 4];
         int ptr = 0;
@@ -166,6 +191,39 @@ public final class DataOutputStream implements Disposable {
      * @version 2010/06/06 : 新規作成
      */
     public final void writeS64Array(final long[] buffer) throws IOException {
+        final byte[] temp = new byte[buffer.length * 8];
+        int ptr = 0;
+        for (long n : buffer) {
+            temp[ptr] = (byte) ((n >> 56) & 0xff);
+            ptr++;
+            temp[ptr] = (byte) ((n >> 48) & 0xff);
+            ptr++;
+            temp[ptr] = (byte) ((n >> 40) & 0xff);
+            ptr++;
+            temp[ptr] = (byte) ((n >> 32) & 0xff);
+            ptr++;
+            temp[ptr] = (byte) ((n >> 24) & 0xff);
+            ptr++;
+            temp[ptr] = (byte) ((n >> 16) & 0xff);
+            ptr++;
+            temp[ptr] = (byte) ((n >> 8) & 0xff);
+            ptr++;
+            temp[ptr] = (byte) ((n >> 0) & 0xff);
+            ptr++;
+        }
+        writeBuffer(temp, 0, temp.length);
+    }
+
+    /**
+     * 8バイト整数の配列を保存する。
+     *
+     * @author eagle.sakura
+     * @param buffer
+     * @param position
+     * @param length
+     * @version 2010/06/06 : 新規作成
+     */
+    public final void writeS64ArrayWithLength(final long[] buffer) throws IOException {
         writeS32(buffer.length);
         final byte[] temp = new byte[buffer.length * 8];
         int ptr = 0;
