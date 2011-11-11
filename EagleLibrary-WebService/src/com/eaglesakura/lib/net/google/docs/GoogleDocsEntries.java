@@ -344,7 +344,7 @@ public class GoogleDocsEntries {
         Collections.sort(entries, new Comparator<Entry>() {
             @Override
             public int compare(Entry object1, Entry object2) {
-                return object1.getTitle().compareTo(object2.getTitle());
+                return EagleUtil.compareString(object1.getTitle(), object2.getTitle());
             }
         });
     }
@@ -655,13 +655,13 @@ public class GoogleDocsEntries {
             Collections.sort(items, new Comparator<Entry>() {
                 @Override
                 public int compare(Entry object1, Entry object2) {
-                    return object1.getTitle().compareTo(object2.getTitle());
+                    return EagleUtil.compareString(object1.getTitle(), object2.getTitle());
                 }
             });
             Collections.sort(childs, new Comparator<Directory>() {
                 @Override
                 public int compare(Directory object1, Directory object2) {
-                    return object1.getTitle().compareTo(object2.getTitle());
+                    return EagleUtil.compareString(object1.getTitle(), object2.getTitle());
                 }
             });
 

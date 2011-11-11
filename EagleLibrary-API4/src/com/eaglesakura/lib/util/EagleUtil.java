@@ -157,6 +157,9 @@ public class EagleUtil {
 
         srcStream.close();
         dstStream.close();
+
+        //! 最終変更日を修正する
+        dst.setLastModified(src.lastModified());
     }
 
     /**
@@ -728,7 +731,12 @@ public class EagleUtil {
 
             StringBuffer sBuffer = new StringBuffer(digest.length * 2);
             for (byte b : digest) {
-                sBuffer.append(Integer.toHexString(((int) b) & 0xff));
+                String s = Integer.toHexString(((int) b) & 0xff);
+
+                if (s.length() == 1) {
+                    sBuffer.append('0');
+                }
+                sBuffer.append(s);
             }
             return sBuffer.toString();
         } catch (Exception e) {
@@ -759,12 +767,50 @@ public class EagleUtil {
 
             StringBuffer sBuffer = new StringBuffer(digest.length * 2);
             for (byte b : digest) {
-                sBuffer.append(Integer.toHexString(((int) b) & 0xff));
+                String s = Integer.toHexString(((int) b) & 0xff);
+
+                if (s.length() == 1) {
+                    sBuffer.append('0');
+                }
+                sBuffer.append(s);
             }
             return sBuffer.toString();
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static String zenkakuHiraganaToZenkakuKatakana(String s) {
+        StringBuffer sb = new StringBuffer(s);
+        for (int i = 0; i < sb.length(); i++) {
+            char c = sb.charAt(i);
+            if (c >= 'ァ' && c <= 'ン') {
+                sb.setCharAt(i, (char) (c - 'ァ' + 'ぁ'));
+            } else if (c == 'ヵ') {
+                sb.setCharAt(i, 'か');
+            } else if (c == 'ヶ') {
+                sb.setCharAt(i, 'け');
+            } else if (c == 'ヴ') {
+                sb.setCharAt(i, 'う');
+                sb.insert(i + 1, '゛');
+                i++;
+            }
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * 日本語を意識してJavaの辞書順に並び替える
+     * @param a
+     * @param b
+     * @return
+     */
+    public static int compareString(String a, String b) {
+        a = zenkakuHiraganaToZenkakuKatakana(a.toLowerCase());
+        b = zenkakuHiraganaToZenkakuKatakana(b.toLowerCase());
+
+        return a.compareTo(b);
     }
 
     /**
