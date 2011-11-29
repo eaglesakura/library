@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import com.eaglesakura.lib.util.EagleUtil;
+
 /**
  * 単一ディレクトリおよびそのサブディレクトリを管理する。
  *
@@ -222,6 +224,7 @@ public class Directory {
 
     /**
      * ファイルを名前順にソートする。
+     * inの中身がソートされるため、戻り値は同じ参照となる。
      * @param files
      * @return
      */
@@ -236,7 +239,7 @@ public class Directory {
             public int compare(File object1, File object2) {
                 String f0 = object1.getAbsolutePath();
                 String f1 = object2.getAbsolutePath();
-                return f0.compareTo(f1);
+                return EagleUtil.compareString(f0, f1);
             }
         });
 

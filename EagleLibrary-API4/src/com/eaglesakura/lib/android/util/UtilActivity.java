@@ -495,6 +495,19 @@ public class UtilActivity extends Activity {
     }
 
     /**
+     * DP->Pixを変換して返す。
+     * @param dp
+     * @param context
+     * @return
+     */
+    public static int dpToPix(float dp, Context context) {
+        float tmpDensity = context.getResources().getDisplayMetrics().density;
+        // ピクセル値を求める
+        int tmpPx = (int) (dp * tmpDensity + 0.5f);
+        return tmpPx;
+    }
+
+    /**
      * デバッグモードならtrueを返す。
      * @return
      */
