@@ -152,59 +152,66 @@ public class TwitterLoginActivity extends Activity {
      * ログインを開始する。
      */
     void startLoginTask() {
-        webView = new WebView(this);
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setAppCacheEnabled(false);
-        webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
 
-        //! 既存キャッシュをクリア
         try {
-            webView.clearCache(true);
-            CookieManager cm = CookieManager.getInstance();
-            cm.removeAllCookie();
+
+            webView = new WebView(this);
+            webView.getSettings().setJavaScriptEnabled(true);
+            webView.getSettings().setAppCacheEnabled(false);
+            webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+
+            //! 既存キャッシュをクリア
+            try {
+                webView.clearCache(true);
+                CookieManager cm = CookieManager.getInstance();
+                cm.removeAllCookie();
+            } catch (Exception e) {
+            }
+            webView.setWebViewClient(new WebViewClient() {
+                @Override
+                public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                    EagleUtil.log(url);
+                    if (url.startsWith(getCallbackURL())) {
+                        onLoginSuccess(url);
+                        return;
+                    }
+
+                    super.onPageStarted(view, url, favicon);
+                }
+            });
+            setContentView(webView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+
+            final ProgressDialog dialog = new ProgressDialog(this);
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.setMessage("Please Wait...");
+            (new Thread() {
+                @Override
+                public void run() {
+                    ConfigurationBuilder builder = new ConfigurationBuilder();
+                    builder.setOAuthConsumerKey(getConsumerKey()).setOAuthConsumerSecret(getConsumerSecret());
+                    twitter = new TwitterFactory(builder.build()).getInstance();
+                    try {
+                        final RequestToken oAuthRequestToken = twitter.getOAuthRequestToken(getCallbackURL());
+                        runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                dialog.dismiss();
+                                webView.loadUrl(oAuthRequestToken.getAuthenticationURL());
+                            }
+                        });
+                    } catch (TwitterException e) {
+                        onOAuthRequestFailed(e);
+                    } catch (Exception e) {
+                        onOAuthRequestFailed(e);
+                    }
+                }
+            }).start();
+
+            dialog.show();
         } catch (Exception e) {
+            setResult(RESULT_FAILED);
+            finish();
         }
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                EagleUtil.log(url);
-                if (url.startsWith(getCallbackURL())) {
-                    onLoginSuccess(url);
-                    return;
-                }
-
-                super.onPageStarted(view, url, favicon);
-            }
-        });
-        setContentView(webView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-
-        final ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.setMessage("Please Wait...");
-        (new Thread() {
-            @Override
-            public void run() {
-                ConfigurationBuilder builder = new ConfigurationBuilder();
-                builder.setOAuthConsumerKey(getConsumerKey()).setOAuthConsumerSecret(getConsumerSecret());
-                twitter = new TwitterFactory(builder.build()).getInstance();
-                try {
-                    final RequestToken oAuthRequestToken = twitter.getOAuthRequestToken(getCallbackURL());
-                    runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            dialog.dismiss();
-                            webView.loadUrl(oAuthRequestToken.getAuthenticationURL());
-                        }
-                    });
-                } catch (TwitterException e) {
-                    onOAuthRequestFailed(e);
-                } catch (Exception e) {
-                    onOAuthRequestFailed(e);
-                }
-            }
-        }).start();
-
-        dialog.show();
     }
 }
