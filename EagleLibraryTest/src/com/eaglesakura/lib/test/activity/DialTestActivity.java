@@ -5,6 +5,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 
 import com.eaglesakura.lib.android.graphic.Graphics;
+import com.eaglesakura.lib.android.test.activity.BaseActivity;
 import com.eaglesakura.lib.android.view.CanvasView;
 import com.eaglesakura.lib.math.Vector2;
 import com.eaglesakura.lib.util.EagleUtil;

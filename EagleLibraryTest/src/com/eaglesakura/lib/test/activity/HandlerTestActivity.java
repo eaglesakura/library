@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.eaglesakura.lib.android.test.activity.BaseActivity;
 import com.eaglesakura.lib.util.EagleUtil;
 
 /**

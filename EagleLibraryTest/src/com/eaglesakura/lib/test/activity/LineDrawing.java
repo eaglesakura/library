@@ -12,6 +12,7 @@ import android.os.Handler;
 
 import com.eaglesakura.lib.android.gles11.GLManager;
 import com.eaglesakura.lib.android.mqo.Figure;
+import com.eaglesakura.lib.android.test.activity.BaseActivity;
 import com.eaglesakura.lib.android.thread.ILoopManager;
 import com.eaglesakura.lib.android.thread.ILooper;
 import com.eaglesakura.lib.android.thread.LooperHandler;

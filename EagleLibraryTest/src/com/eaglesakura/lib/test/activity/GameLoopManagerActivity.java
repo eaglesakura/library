@@ -3,6 +3,7 @@ package com.eaglesakura.lib.test.activity;
 import android.os.Bundle;
 
 import com.eaglesakura.lib.android.appcore.GameLoopManager;
+import com.eaglesakura.lib.android.test.activity.BaseActivity;
 import com.eaglesakura.lib.util.EagleUtil;
 
 public class GameLoopManagerActivity extends BaseActivity {

@@ -3,6 +3,8 @@
  */
 package com.eaglesakura.lib.test.activity;
 
+import com.eaglesakura.lib.android.test.activity.BaseActivity;
+
 import android.os.Bundle;
 
 /**

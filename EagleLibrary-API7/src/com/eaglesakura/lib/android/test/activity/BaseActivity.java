@@ -1,4 +1,4 @@
-package com.eaglesakura.lib.test.activity;
+package com.eaglesakura.lib.android.test.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -21,7 +21,11 @@ public class BaseActivity extends Activity {
         }
     }
 
-    BaseActivity getActivity() {
+    /**
+     * Context取得のショートカット
+     * @return
+     */
+    protected BaseActivity getActivity() {
         return this;
     }
 

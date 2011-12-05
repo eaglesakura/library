@@ -156,9 +156,14 @@ public class TwitterLoginActivity extends Activity {
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setAppCacheEnabled(false);
         webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-        webView.clearCache(true);
-        CookieManager cm = CookieManager.getInstance();
-        cm.removeAllCookie();
+
+        //! 既存キャッシュをクリア
+        try {
+            webView.clearCache(true);
+            CookieManager cm = CookieManager.getInstance();
+            cm.removeAllCookie();
+        } catch (Exception e) {
+        }
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {

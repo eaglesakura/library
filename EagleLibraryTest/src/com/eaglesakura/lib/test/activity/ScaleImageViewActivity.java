@@ -4,6 +4,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import com.eaglesakura.lib.android.device.TouchImageView;
+import com.eaglesakura.lib.android.test.activity.BaseActivity;
 import com.eaglesakura.lib.test.R;
 
 /**

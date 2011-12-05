@@ -229,6 +229,9 @@ public class Directory {
      * @return
      */
     public static File[] sort(File[] files) {
+        if (files == null) {
+            return null;
+        }
         List<File> temp = new ArrayList<File>();
         for (File f : files) {
             temp.add(f);

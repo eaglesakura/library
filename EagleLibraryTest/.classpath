@@ -10,7 +10,5 @@
 	<classpathentry kind="lib" path="/EagleLibrary-WebService/libs/jsonic-1.0.5.jar"/>
 	<classpathentry kind="src" path="EagleLibrary-API4_src"/>
 	<classpathentry kind="lib" path="/EagleLibrary-WebService/libs/twitter4j-core-android-2.2.5.jar"/>
-	<classpathentry kind="src" path="EagleLibrary-WebService_src"/>
-	<classpathentry kind="src" path="EagleLibrary-API7_src"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
