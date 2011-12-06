@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -154,19 +155,16 @@ public class TwitterLoginActivity extends Activity {
     void startLoginTask() {
 
         try {
-
             webView = new WebView(this);
             webView.getSettings().setJavaScriptEnabled(true);
             webView.getSettings().setAppCacheEnabled(false);
             webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-
-            //! 既存キャッシュをクリア
-            try {
-                webView.clearCache(true);
-                CookieManager cm = CookieManager.getInstance();
-                cm.removeAllCookie();
-            } catch (Exception e) {
-            }
+            webView.clearCache(true);
+            webView.clearFormData();
+            webView.clearSslPreferences();
+            webView.clearHistory();
+            webView.clearMatches();
+            webView.clearView();
             webView.setWebViewClient(new WebViewClient() {
                 @Override
                 public void onPageStarted(WebView view, String url, Bitmap favicon) {
@@ -187,9 +185,18 @@ public class TwitterLoginActivity extends Activity {
             (new Thread() {
                 @Override
                 public void run() {
+
                     ConfigurationBuilder builder = new ConfigurationBuilder();
                     builder.setOAuthConsumerKey(getConsumerKey()).setOAuthConsumerSecret(getConsumerSecret());
                     twitter = new TwitterFactory(builder.build()).getInstance();
+
+                    try {
+                        CookieSyncManager.getInstance();
+                        CookieManager.getInstance().removeAllCookie();
+                    } catch (Exception e) {
+
+                    }
+
                     try {
                         final RequestToken oAuthRequestToken = twitter.getOAuthRequestToken(getCallbackURL());
                         runOnUiThread(new Runnable() {
@@ -198,6 +205,7 @@ public class TwitterLoginActivity extends Activity {
                             public void run() {
                                 dialog.dismiss();
                                 webView.loadUrl(oAuthRequestToken.getAuthenticationURL());
+                                webView.clearCache(true);
                             }
                         });
                     } catch (TwitterException e) {
