@@ -1,10 +1,12 @@
 package com.eaglesakura.lib.net.google.docs;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.http.conn.ConnectionPoolTimeoutException;
+
+import com.eaglesakura.lib.net.google.docs.DocsAPIException.Type;
 import com.eaglesakura.lib.util.EagleUtil;
 import com.google.api.client.googleapis.GoogleHeaders;
 import com.google.api.client.googleapis.GoogleTransport;
@@ -84,7 +86,7 @@ public class GoogleDocsDownloader {
         rangeLength = end - start + 1;
     }
 
-    void loginEmail(HttpTransport transport) throws IOException {
+    void loginEmail(HttpTransport transport) throws DocsAPIException {
 
         ClientLogin authenticator = new ClientLogin();
         authenticator.applicationName = applicationName;
@@ -92,11 +94,16 @@ public class GoogleDocsDownloader {
         authenticator.username = gmail;
         authenticator.password = password;
 
-        Response authenticate = authenticator.authenticate();
-        authenticate.setAuthorizationHeader(transport);
+        try {
+            Response authenticate = authenticator.authenticate();
+            authenticate.setAuthorizationHeader(transport);
+        } catch (IOException ioe) {
+            throw new DocsAPIException(Type.AuthError, ioe);
+        }
     }
 
-    private HttpResponse getResponse(String url, long itemSize) throws IOException {
+    //! FIXME!! 基本的にここに例外を追加してく
+    private HttpResponse getResponse(String url, long itemSize) throws DocsAPIException {
         downHeader.setApplicationName(applicationName);
         downHeader.gdataVersion = "3";
 
@@ -128,23 +135,37 @@ public class GoogleDocsDownloader {
         try {
             return downRequest.execute();
         } catch (HttpResponseException re) {
-            if (re.response != null && re.response.headers != null && re.response.headers.get("Location") != null) {
-                try {
-                    if (re.response.getContent() != null) {
-                        EagleUtil.log("close!");
-                        re.response.getContent().close();
-                    }
-                    re.response.ignore();
-                } catch (Exception e) {
-                    EagleUtil.log(e);
+
+            if (re.response != null) {
+                switch (re.response.statusCode) {
+                case 401:
+                case 403:
+                    throw new DocsAPIException(Type.AuthError, re);
                 }
-                EagleUtil.log("Redirect : " + re.response.headers.get("Location").toString());
-                return getResponse(re.response.headers.get("Location").toString(), itemSize);
+
+                //! リダイレクト命令
+                if (re.response.headers != null && re.response.headers.get("Location") != null) {
+                    try {
+                        if (re.response.getContent() != null) {
+                            EagleUtil.log("close!");
+                            re.response.getContent().close();
+                        }
+                        re.response.ignore();
+                    } catch (Exception e) {
+                        EagleUtil.log(e);
+                    }
+                    EagleUtil.log("Redirect : " + re.response.headers.get("Location").toString());
+                    return getResponse(re.response.headers.get("Location").toString(), itemSize);
+                }
             } else {
                 EagleUtil.log(re);
             }
+        } catch (ConnectionPoolTimeoutException cpe) {
+            throw new DocsAPIException(Type.ConnectPoolError, cpe);
+        } catch (Exception e) {
+            throw new DocsAPIException(Type.Unknown, e);
         }
-        throw new FileNotFoundException(url);
+        throw new DocsAPIException(Type.FileNotFound, url);
     }
 
     /**
@@ -152,7 +173,7 @@ public class GoogleDocsDownloader {
      * @param url
      * @throws IOException
      */
-    public void start(GoogleDocsEntries.Entry entry) throws IOException {
+    public void start(GoogleDocsEntries.Entry entry) throws DocsAPIException {
         EagleUtil.log(entry.getTitle() + " :: " + entry.getContentSize() + "bytes = " + entry.getContentUrl());
         start(entry.getContentUrl(), entry.getContentSize());
     }
@@ -163,10 +184,21 @@ public class GoogleDocsDownloader {
      * @param length
      * @throws IOException
      */
-    public void start(String url, long length) throws IOException {
+    public void start(String url, long length) throws DocsAPIException {
         response = getResponse(url, length);
         EagleUtil.log("header : " + response.headers);
-        stream = response.getContent();
+        try {
+            stream = response.getContent();
+        } catch (HttpResponseException hre) {
+            switch (hre.response.statusCode) {
+            case 401:
+            case 403:
+                throw new DocsAPIException(Type.AuthError, hre);
+            }
+            throw new DocsAPIException(Type.APIResponseError, hre);
+        } catch (Exception e) {
+            throw new DocsAPIException(Type.ConnectErrorUnknown, e);
+        }
     }
 
     /**

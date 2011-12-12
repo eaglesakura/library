@@ -1,6 +1,7 @@
 package com.eaglesakura.lib.net.google.docs;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.eaglesakura.lib.net.google.docs.DocsAPIException.Type;
 import com.eaglesakura.lib.util.EagleUtil;
 import com.google.api.client.googleapis.GoogleHeaders;
 import com.google.api.client.googleapis.GoogleTransport;
@@ -17,6 +19,7 @@ import com.google.api.client.googleapis.auth.clientlogin.ClientLogin;
 import com.google.api.client.googleapis.auth.clientlogin.ClientLogin.Response;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpResponse;
+import com.google.api.client.http.HttpResponseException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.util.Key;
 import com.google.api.client.xml.XmlNamespaceDictionary;
@@ -64,7 +67,7 @@ public class GoogleDocsEntries {
         this.passowrd = password;
     }
 
-    void loginEmail(HttpTransport transport) throws IOException {
+    void loginEmail(HttpTransport transport) throws DocsAPIException {
 
         ClientLogin authenticator = new ClientLogin();
         authenticator.applicationName = applicationName;
@@ -72,8 +75,12 @@ public class GoogleDocsEntries {
         authenticator.username = gmail;
         authenticator.password = passowrd;
 
-        Response authenticate = authenticator.authenticate();
-        authenticate.setAuthorizationHeader(transport);
+        try {
+            Response authenticate = authenticator.authenticate();
+            authenticate.setAuthorizationHeader(transport);
+        } catch (IOException ioe) {
+            throw new DocsAPIException(Type.AuthError, ioe);
+        }
     }
 
     public void setApplicationName(String applicationName) {
@@ -92,7 +99,7 @@ public class GoogleDocsEntries {
      * 次のページを読み込む。
      * @throws IOException
      */
-    public void getNextPage() throws IOException {
+    public void getNextPage() throws DocsAPIException {
         if (hasNextResult()) {
             accessURL(nextURL);
         }
@@ -104,7 +111,7 @@ public class GoogleDocsEntries {
      * @return
      * @throws IOException
      */
-    public byte[] getResult(String _url) throws IOException {
+    public byte[] getResult(String _url) throws DocsAPIException {
         HttpTransport transport = GoogleTransport.create();
         GoogleHeaders headers = (GoogleHeaders) transport.defaultHeaders;
         headers.setApplicationName(applicationName);
@@ -126,15 +133,21 @@ public class GoogleDocsEntries {
             final String url = _url;
             EagleUtil.log("search url : " + url);
             request.url = new GoogleUrl(url);
-            HttpResponse responce = request.execute();
-            byte[] buffer = EagleUtil.decodeStream(responce.getContent());
-
+            HttpResponse responce = null;
             try {
-                responce.ignore();
-            } catch (Exception e) {
+                responce = request.execute();
+                byte[] buffer = EagleUtil.decodeStream(responce.getContent());
+                return buffer;
+            } catch (IOException ioe) {
+                throw new DocsAPIException(Type.APIResponseError, ioe);
+            } finally {
+                try {
+                    responce.ignore();
+                } catch (Exception e) {
+
+                }
 
             }
-            return buffer;
         }
     }
 
@@ -143,7 +156,7 @@ public class GoogleDocsEntries {
      * @param keyword 検索ワード。nullですべて取得。
      * @throws IOException
      */
-    public void accessURL(String _url) throws IOException {
+    public void accessURL(String _url) throws DocsAPIException {
         HttpTransport transport = GoogleTransport.create();
         GoogleHeaders headers = (GoogleHeaders) transport.defaultHeaders;
         headers.setApplicationName(applicationName);
@@ -160,7 +173,7 @@ public class GoogleDocsEntries {
         parser.namespaceDictionary = new XmlNamespaceDictionary();
         transport.addParser(parser);
 
-        {
+        try {
             HttpRequest request = transport.buildGetRequest();
             if (_url.startsWith("?")) {
                 _url = "https://docs.google.com/feeds/default/private/full" + _url;
@@ -169,7 +182,6 @@ public class GoogleDocsEntries {
             EagleUtil.log("search url : " + url);
             request.url = new GoogleUrl(url);
             HttpResponse responce = request.execute();
-
             //            printResponce(responce);
             {
                 // 送信
@@ -202,6 +214,15 @@ public class GoogleDocsEntries {
                     EagleUtil.log("no-link");
                 }
             }
+        } catch (HttpResponseException hre) {
+            switch (hre.response.statusCode) {
+            case 401:
+            case 403:
+                throw new DocsAPIException(Type.AuthError, hre);
+            }
+            throw new DocsAPIException(Type.APIResponseError, hre);
+        } catch (IOException ioe) {
+            throw new DocsAPIException(Type.APIResponseError, ioe);
         }
     }
 
@@ -218,14 +239,19 @@ public class GoogleDocsEntries {
      * @param keyword 検索ワード。nullですべて取得。
      * @throws IOException
      */
-    public void search(String keyword, boolean isQuery) throws IOException {
+    public void search(String keyword, boolean isQuery) throws DocsAPIException {
         String url = "https://docs.google.com/feeds/default/private/full";
-        if (keyword != null && keyword.length() > 0) {
-            url += ((isQuery ? "?q=" : "?title=") + URLEncoder.encode(keyword, "UTF-8"));
-        }
-        EagleUtil.log("search url : " + url);
 
-        accessURL(url);
+        try {
+            if (keyword != null && keyword.length() > 0) {
+                url += ((isQuery ? "?q=" : "?title=") + URLEncoder.encode(keyword, "UTF-8"));
+            }
+            EagleUtil.log("search url : " + url);
+
+            accessURL(url);
+        } catch (UnsupportedEncodingException uee) {
+            throw new DocsAPIException(Type.Unknown, uee);
+        }
     }
 
     /**
@@ -234,7 +260,7 @@ public class GoogleDocsEntries {
      * @param isQuery
      * @throws IOException
      */
-    public void searchFullPage(String keyword, boolean isQuery, boolean sort) throws IOException {
+    public void searchFullPage(String keyword, boolean isQuery, boolean sort) throws DocsAPIException {
         search(keyword, isQuery);
         while (hasNextResult()) {
             getNextPage();
@@ -249,7 +275,7 @@ public class GoogleDocsEntries {
      * Google Docsフォルダを取得する。
      * @return
      */
-    public Directory getDocsDirectory() throws IOException {
+    public Directory getDocsDirectory() throws DocsAPIException {
 
         //! まずはデータを取得する。
         accessURL("https://docs.google.com/feeds/default/private/full/-/folder");

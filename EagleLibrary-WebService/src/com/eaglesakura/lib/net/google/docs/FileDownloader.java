@@ -4,19 +4,21 @@
 package com.eaglesakura.lib.net.google.docs;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import com.eaglesakura.lib.net.google.docs.DocsAPIException.Type;
 import com.eaglesakura.lib.net.google.docs.GoogleDocsEntries.Entry;
 import com.eaglesakura.lib.util.EagleUtil;
 
 /**
  * @author SAKURA
- *
+ * 非推奨。
+ * サンプル程度に考えるといい。
  */
-public class FileDownloader {
+@Deprecated
+class FileDownloader {
 
     /**
      * キャッシュファイル名
@@ -81,7 +83,7 @@ public class FileDownloader {
      * @param token
      * @throws IOException
      */
-    public boolean start() throws IOException {
+    public boolean start() throws DocsAPIException {
         if (token != null) {
             return start(token);
         } else {
@@ -96,7 +98,7 @@ public class FileDownloader {
      * @param token
      * @throws IOException
      */
-    private boolean start(String email, String password) throws IOException {
+    private boolean start(String email, String password) throws DocsAPIException {
         cache = new File(dstFile.getAbsoluteFile() + cacheFileExt);
 
         //! URLを探す
@@ -104,7 +106,7 @@ public class FileDownloader {
         entries.search(srcFileName, true);
 
         if (entries.getEntriesCount() == 0) {
-            throw new FileNotFoundException("not exists google docs : " + srcFileName);
+            throw new DocsAPIException(Type.FileNotFound, "not exists google docs : " + srcFileName);
         }
         Entry entry = entries.getEntry(0);
 
@@ -130,7 +132,7 @@ public class FileDownloader {
      * @param token
      * @throws IOException
      */
-    private boolean start(String token) throws IOException {
+    private boolean start(String token) throws DocsAPIException {
         cache = new File(dstFile.getAbsoluteFile() + cacheFileExt);
 
         //! URLを探す
@@ -138,7 +140,7 @@ public class FileDownloader {
         entries.search(srcFileName, true);
 
         if (entries.getEntriesCount() == 0) {
-            throw new FileNotFoundException("not exists google docs : " + srcFileName);
+            throw new DocsAPIException(Type.FileNotFound, "not exists google docs : " + srcFileName);
         }
         Entry entry = entries.getEntry(0);
 
