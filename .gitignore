@@ -7,3 +7,5 @@
 .settings
 **/private/**
 **/assets/**
+local.properties
+build.xml

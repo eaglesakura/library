@@ -31,11 +31,4 @@
 		<nature>com.android.ide.eclipse.adt.AndroidNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>EagleLibrary-API4_src</name>
-			<type>2</type>
-			<locationURI>_android_EagleLibrary_API4_61a51750/src</locationURI>
-		</link>
-	</linkedResources>
 </projectDescription>
